@@ -33,7 +33,7 @@ def maindef(ref_list, R1, R2, outdir="./", outprefix="out"):
     min_qual = 30
     input_qual = "fastq-sanger"
     adapter_trimming = True
-    adapter_path = "/home/adrien/Programming/Python/DNA-tools/test/adapter.fa"
+    adapter_path = "/media/analyse/Pharmaco_AAV/documents_pharmaco_AAV/Programming/Python/ContaVect/test/adapter.fa"
     # ... Other parameters not available for now
 
     # Alignment
@@ -66,7 +66,7 @@ def maindef(ref_list, R1, R2, outdir="./", outprefix="out"):
         print ("\n##### FASTQ FILTERING #####\n")
         fastq_dir = path.join(main_dir+"fastq/")
         mkdir(fastq_dir)
-        R1, R2 = fastq_filter(R1, R2, fastq_dir, quality_filtering, min_qual, input_qual, adapter_trimming, adapter_path)
+        R1, R2 = fastq_filter(R1, R2, fastq_dir, quality_filtering, min_qual, input_qual, adapter_trimming, adapter_path, maxqueue)
 
     print "R1 = " + R1
     print "R2 = " + R2
@@ -170,6 +170,13 @@ def fastq_filter (
         trimmer = None
 
     # Filter fastq for quality and adapter with FastqFilterPP
-    fFilter = FastqFilterPP (R1, R2, qFilter, trimmer, outdir, input_qual)
+    fFilter = FastqFilterPP (R1, R2,
+        quality_filter=qFilter,
+        adapter_trimmer=trimmer,
+        outdir=outdir,
+        input_qual=input_qual,
+        maxqueue=maxqueue,
+        compress_output=False)
+    
     print (repr(fFilter))
     return (fFilter.R1_out, fFilter.R2_out)
