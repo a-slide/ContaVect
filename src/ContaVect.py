@@ -55,41 +55,34 @@ def main(conf):
         mkdir(fastq_dir)
         R1, R2 = fastq_filter(conf, fastq_dir)
     else:
-        R1, R2 = conf.get("Fastq", "R1"), conf.get("Fastq", "R2") 
+        R1, R2 = conf.get("Fastq", "R1"), conf.get("Fastq", "R2")
+
+    # BWA alignment
+    print ("\n##### READ REFERENCES AND ALIGN WITH BWA #####\n")
+    # Create a folder for aligned read and index file storage
+    align_dir = path.join(main_dir+"bwa_align/")
+    index_dir = path.join(main_dir+"bwa_index/")
+    mkdir(align_dir)
+    mkdir(index_dir)
     
-    print "R1 = " + R1
-    print "R2 = " + R2
+    # An index will be generated if no index was provided
+    sam = Mem.align (
+        R1, R2,
+        index = conf.get("Bwa Alignment", "index"),
+        ref = [ref.fasta_path for ref in Reference.Instances],
+        align_opt = conf.get("Bwa Alignment", "mem_opt"),
+        index_opt = conf.get("Bwa Alignment", "index_opt"),
+        aligner = conf.get("Bwa Alignment", "bwa_mem"),
+        indexer = conf.get("Bwa Alignment", "bwa_index"),
+        align_outdir= align_dir,
+        index_outdir = index_dir,
+        align_outname = conf.get("General", "outprefix")+".sam",
+        index_outname = conf.get("General", "outprefix")+".idx")
+    
+    print sam
 
-    ## BWA alignment
-    #print ("\n##### READ REFERENCES AND ALIGN WITH BWA #####\n")
-
-    ## Create a folder for aligned read storage
-    #align_dir = path.join(main_dir+"bwa_align/")
-    #mkdir(align_dir)
-
-    #if ref_masking or not bwa_index:
-        ## Read fasta ref to map seq names and merge then together in a single fasta file
-        #reader = FastaReader(ref_list, write_merge=True, output=ref_dir+"merged.fa", write_summary=True)
-
-        ## Create a folder for index storage
-        #index_dir = path.join(main_dir+"bwa_index/")
-        #mkdir(index_dir)
-
-        ## Index and Align with Bwa Mem
-        #Mem.align (R1,R2, ref_fasta=reader.getMergeRef(),
-                   #align_opt=mem_opt, align_outdir=align_dir, align_outname=outprefix+".sam",
-                   #index_opt=index_opt, index_outdir=index_dir, index_outname = "merged.fa")
-
-    #else:
-        ## Read fasta ref to map seq names
-        #reader = FastaReader(ref_list, write_summary=True)
-
-        ## Align with Bwa Mem against
-        #Mem.align (R1,R2, ref_index=bwa_index,
-                   #align_opt=mem_opt, align_outdir=align_dir, align_outname=outprefix+".sam")
-
-    #print ("\n##### DONE #####\n")
-    #print ("Total execution time = {}s".format(round(time()-stime, 2)))
+    print ("\n##### DONE #####\n")
+    print ("Total execution time = {}s".format(round(time()-stime, 2)))
 
 #~~~~~~~HELPER FUNCTIONS~~~~~~~#
 

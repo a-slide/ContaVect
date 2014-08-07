@@ -34,6 +34,13 @@ bedgraph : True
 vcf : True
 
 [Ref4]
+fasta : /media/analyse/Pharmaco_AAV/documents_pharmaco_AAV/Programming/Python/ContaVect/test/references/Ad5_in_293_genome.fa.gz
+sam : False
+covgraph : True
+bedgraph : True
+vcf : True
+
+[Ref5]
 fasta : /media/analyse/Pharmaco_AAV/documents_pharmaco_AAV/Programming/Python/ContaVect/test/references/hg19_chr11.fa.gz
 sam : False
 covgraph : False
@@ -60,15 +67,19 @@ adapter_path : /media/analyse/Pharmaco_AAV/documents_pharmaco_AAV/Programming/Py
 min_read_len : 0.6
 min_match_len : 0.8
 min_match_score : 1.4
-
-# must be integers
+# Must be integers
 ssw_match : 2
 ssw_mismatch : 2
 ssw_gap_open : 3
 ssw_gap_extend : 1
 
-[Fastq Alignment]
-bwa_index : False
-mem_opt : None
-index_opt : None
+[Bwa Alignment]
+index :
+mem_opt :
+index_opt :
+bwa_mem : bwa mem
+bwa_index : bwa index
+
+
+
 

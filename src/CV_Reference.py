@@ -1,3 +1,5 @@
+# TODO : Store lenght of each ref and seq somewhere for future RPKM 
+
 #~~~~~~~GLOBAL IMPORTS~~~~~~~#
 
 # Standard library packages import
