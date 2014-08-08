@@ -12,6 +12,9 @@ from time import time, sleep
 import ConfigParser
 from sys import argv
 
+# Third party packages
+import pysam
+
 # Local Package import
 from Utilities import mkdir, file_basename, file_name, expand_file
 from Blast import Blastn
@@ -36,7 +39,12 @@ def main(conf):
         mkdir(main_dir)
     else:
         main_dir = path.abspath ("./")+"/"
-
+    
+    #get boolean value for pipeline orientation 
+    ref_masking = conf.getboolean("Ref_Masking", "ref_masking")
+    quality_filtering = conf.getboolean("Fastq_Filtering", "quality_filtering")
+    adapter_trimming = conf.getboolean("Fastq_Filtering", "adapter_trimming")
+    
     print ("\n##### EXPAND AND PARSE REFERENCES #####\n")
     # Expand the reference sequence to avoid multiple decompression during Program execution
 
@@ -45,18 +53,18 @@ def main(conf):
     extract_ref(conf, ref_dir) # Reference object are instancied and accessible through the class methods
 
     # Reference Masking
-    if conf.get("Ref_Masking", "ref_masking"):
+    if ref_masking:
         print ("\n##### REFERENCE HOMOLOGIES MASKING #####\n")
         db_dir = path.join(main_dir, "blast_db/")
         mkdir (db_dir)
         ref_list = iterative_masker(conf, db_dir, ref_dir)
 
     # Fastq Filtering
-    if conf.get("Fastq_Filtering", "quality_filtering") or conf.get("Fastq_Filtering", "adapter_trimming"):
+    if quality_filtering or adapter_trimming:
         print ("\n##### FASTQ FILTERING #####\n")
         fastq_dir = path.join(main_dir+"fastq/")
         mkdir(fastq_dir)
-        R1, R2 = fastq_filter(conf, fastq_dir)
+        R1, R2 = fastq_filter(conf, fastq_dir, quality_filtering, adapter_trimming)
     else:
         R1, R2 = conf.get("Fastq", "R1"), conf.get("Fastq", "R2")
 
@@ -82,8 +90,10 @@ def main(conf):
         align_outname = conf.get("General", "outprefix")+".sam",
         index_outname = conf.get("General", "outprefix")+".idx")
 
-    print sam
-
+    sam_spliter (conf, sam)
+    
+    print Reference.printInstances()
+    
     print ("\n##### DONE #####\n")
     print ("Total execution time = {}s".format(round(time()-stime, 2)))
 
@@ -140,16 +150,16 @@ def iterative_masker (conf, db_dir="./", ref_dir="./"):
             ref_outname="masked_{}.fa".format(subject.name),
             compress_ouput=False )
 
-def fastq_filter (conf, outdir="./"):
+def fastq_filter (conf, outdir="./", quality_filtering=False, adapter_trimming=False):
 
     # Define a quality filter object
     qFilter = None
-    if conf.get("Fastq_Filtering", "quality_filtering"):
+    if quality_filtering:
         qFilter = QualityFilter (conf.getfloat("Fastq_Filtering", "min_qual"))
 
     # Define a adapter trimmer object
     trimmer = None
-    if conf.get("Fastq_Filtering", "adapter_trimming"):
+    if adapter_trimming:
         sswAligner = ssw_wrap.Aligner(
             match=conf.getint("Fastq_Filtering", "ssw_match"),
             mismatch=conf.getint("Fastq_Filtering", "ssw_mismatch"),
@@ -175,6 +185,22 @@ def fastq_filter (conf, outdir="./"):
     print (repr(fFilter))
     return fFilter.getTrimmed()
 
+
+def sam_spliter (conf, sam):
+    """
+    """
+    samfile = pysam.Samfile( sam, "r" )
+    
+    unmapped = []
+    
+    for read in samfile:
+        if not read.is_secondary:
+            if read.mapq < 30:
+                unmapped.append(read)
+            else:
+                seqname = samfile.getrname(read.tid)
+                sucess = Reference.addRead(seqname, read)
+                assert sucess, ""
 
 #~~~~~~~TOP LEVEL INSTRUCTIONS~~~~~~~#
 if __name__ == '__main__':

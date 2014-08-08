@@ -1,5 +1,3 @@
-# TODO : Store lenght of each ref and seq somewhere for future RPKM
-
 #~~~~~~~GLOBAL IMPORTS~~~~~~~#
 
 # Standard library packages import
@@ -37,23 +35,24 @@ class Reference(object):
     @ classmethod
     def countInstances (self):
         return len(self.Instances)
+    
+    @ classmethod
+    def refLen (self):
+        length=0
+        for ref in self.Instances:
+            for seq in ref.seq_list:
+                length+=seq.length
+        return length
 
     @ classmethod
     def allSeqList (self):
         if self.Instances:
             all_seq_list=[]
             for ref in self.Instances:
-                all_seq_list.extend(ref.seq_list)
+                all_seq_list.extend([seq.name for seq in ref.seq_list])
             return all_seq_list
         else:
             return []
-
-    @ classmethod
-    def seqOrigin (self, seqname):
-        for ref in self.Instances:
-            if seqname in ref.seq_list:
-                return ref.name
-        return None
 
     @ classmethod
     def allName (self):
@@ -77,6 +76,18 @@ class Reference(object):
         print "Clearing Reference instances list"
         self.Instances = []
         self.id_count = 0
+    
+    @ classmethod
+    def addRead (self, seqname, read):
+        for ref in self.Instances:
+            for seq in ref.seq_list:
+                if seqname == seq.name:
+                    ref.read_list.append(read)
+                    ref.nread+=1
+                    seq.nread+=1
+                    return 1
+        return 0
+    
 
     #~~~~~~~FONDAMENTAL METHODS~~~~~~~#
 
@@ -88,17 +99,21 @@ class Reference(object):
             mk_vcf=False):
         """
         """
+        # Init object variables 
         self.name = file_basename(fasta_path)
         print ("Creating reference object {}".format(self.name))
         self.id = self.next_id()
-        self.fasta_path = path.abspath(fasta_path)
-        self.seq_list = self._fasta_reader()
-        #self.bam = []
+        self.fasta_path = fasta_path
+        self.seq_list = []
+        self.read_list = []
+        self.nread = 0
         self.mk_sam = mk_sam
         self.mk_covgraph = mk_covgraph
         self.mk_bedgraph = mk_bedgraph
         self.mk_vcf = mk_vcf
-
+                
+        # parse the fasta reference
+        self.seq_list = self._fasta_reader()
         # Add the instance to the class instance tracking list
         self.Instances.append(self)
 
@@ -106,9 +121,10 @@ class Reference(object):
         msg = "REF {}".format(self.id)
         msg+= "\tName: {}\n".format(self.name)
         msg+= "\tFasta_path: {}\n".format(self.fasta_path)
-        msg+= "\tSequence list:  {}\n".format("  ".join(self.seq_list))
+        msg+= "\tSequence list:\n"
+        for seq in self.seq_list:
+            msg+= "\t{}\n".format(repr(seq))
         msg+= "\tRequired output:"
-
         if self.mk_sam:
             msg+= "  Sam file"
         if self.mk_covgraph:
@@ -142,12 +158,10 @@ class Reference(object):
         seq_list=[]
         for seq in SeqIO.parse(fp, "fasta"):
             # verify the absence of the sequence name in the current list and in other ref seq_list
-            if seq.id in seq_list:
-                raise Exception ("{} is duplicated in the current reference\n".format(seq.id, self.name))
             if seq.id in self.allSeqList():
-                raise Exception ("{} is duplicated in another reference\n".format(seq.id))
+                raise Exception ("{} is duplicated\n".format(seq.id))
             else:
-                seq_list.append(seq.id)
+                seq_list.append(Sequence(name=seq.id, length=len(seq)))
 
             stdout.write("*")
             stdout.flush()
@@ -157,15 +171,22 @@ class Reference(object):
 
         return seq_list
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 class Sequence(object):
     """
     @class  Sequence
-    @brief  Object oriented class containing informations of reference
+    @brief  Object oriented class containing informations of a sequence from a reference file
     """
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-    pass
-    # name
-    # len
-    # nread
+
+    def __init__(self, name, length):
+        self.name = name
+        self.length = length
+        self.nread = 0
+    
+    def __repr__(self):
+        msg = "{}({}bp) : {} read(s)".format(self.name, self.length, self.nread)
+        return (msg)
+
+    def __str__(self):
+        return "<Instance of {} from {} >\n".format(self.__class__.__name__, self.__module__)
