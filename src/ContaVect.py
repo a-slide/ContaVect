@@ -31,23 +31,26 @@ def main(conf):
     stime = time()
 
     # Create a main directory for file created during the programm
-    main_dir = path.abspath(conf.get("General", "outdir"))+"/"
-    mkdir(main_dir)
-    
+    if conf.get("General", "outdir"):
+        main_dir = path.abspath(conf.get("General", "outdir"))+"/"
+        mkdir(main_dir)
+    else:
+        main_dir = path.abspath ("./")+"/"
+
     print ("\n##### EXPAND AND PARSE REFERENCES #####\n")
     # Expand the reference sequence to avoid multiple decompression during Program execution
-    
+
     ref_dir = path.join(main_dir+"references/")
     mkdir(ref_dir)
-    extract_ref(conf, ref_dir) # Reference object are instancied and accessible through the class methods 
-    
+    extract_ref(conf, ref_dir) # Reference object are instancied and accessible through the class methods
+
     # Reference Masking
     if conf.get("Ref_Masking", "ref_masking"):
         print ("\n##### REFERENCE HOMOLOGIES MASKING #####\n")
         db_dir = path.join(main_dir, "blast_db/")
         mkdir (db_dir)
         ref_list = iterative_masker(conf, db_dir, ref_dir)
-    
+
     # Fastq Filtering
     if conf.get("Fastq_Filtering", "quality_filtering") or conf.get("Fastq_Filtering", "adapter_trimming"):
         print ("\n##### FASTQ FILTERING #####\n")
@@ -64,7 +67,7 @@ def main(conf):
     index_dir = path.join(main_dir+"bwa_index/")
     mkdir(align_dir)
     mkdir(index_dir)
-    
+
     # An index will be generated if no index was provided
     sam = Mem.align (
         R1, R2,
@@ -78,7 +81,7 @@ def main(conf):
         index_outdir = index_dir,
         align_outname = conf.get("General", "outprefix")+".sam",
         index_outname = conf.get("General", "outprefix")+".idx")
-    
+
     print sam
 
     print ("\n##### DONE #####\n")
@@ -94,7 +97,7 @@ def extract_ref(conf, refdir="./"):
     while True:
         # Iterate over Ref in the config file until no more reference is found
         ref_id = "Ref"+str(i)
-        
+
         if not conf.has_section(ref_id):
             break
         try:
@@ -102,7 +105,7 @@ def extract_ref(conf, refdir="./"):
             sam = conf.getboolean (ref_id, "sam")
             covgraph = conf.getboolean (ref_id, "covgraph")
             bedgraph = conf.getboolean (ref_id, "bedgraph")
-            vcf = conf.getboolean (ref_id, "vcf")            
+            vcf = conf.getboolean (ref_id, "vcf")
         except ValueError:
             sleep (2)
             print ("ERROR INVALID VALUES, SKIPPING THE REFERENCE NUMBER "+str(i))
@@ -112,7 +115,7 @@ def extract_ref(conf, refdir="./"):
             i+=1
 
 def iterative_masker (conf, db_dir="./", ref_dir="./"):
-    
+
     # Iterate over index in Reference.instances staring by the last one until the 2nd one
     for i in range(Reference.countInstances()-1, 0, -1):
         # Extract subject and query_list from ref_list
@@ -162,20 +165,20 @@ def fastq_filter (conf, outdir="./"):
     # Filter fastq for quality and adapter with FastqFilterPP
     fFilter = FastqFilterPP (
         R1=conf.get("Fastq", "R1"),
-        R2=conf.get("Fastq", "R1"),
+        R2=conf.get("Fastq", "R2"),
         quality_filter=qFilter,
         adapter_trimmer=trimmer,
         outdir=outdir,
         input_qual=conf.get("Fastq_Filtering", "input_qual"),
         compress_output=False)
-    
+
     print (repr(fFilter))
     return fFilter.getTrimmed()
 
 
 #~~~~~~~TOP LEVEL INSTRUCTIONS~~~~~~~#
 if __name__ == '__main__':
-    
+
     conf = ConfigParser.RawConfigParser(allow_no_value=True)
     conf.read(argv[1])
     main(conf)

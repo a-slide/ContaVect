@@ -1,4 +1,4 @@
-# TODO : Store lenght of each ref and seq somewhere for future RPKM 
+# TODO : Store lenght of each ref and seq somewhere for future RPKM
 
 #~~~~~~~GLOBAL IMPORTS~~~~~~~#
 
@@ -27,17 +27,17 @@ class Reference(object):
     id_count = 0
 
     #~~~~~~~CLASS METHODS~~~~~~~#
-    
+
     @ classmethod
     def next_id (self):
         cur_id = self.id_count
         self.id_count +=1
         return cur_id
-    
+
     @ classmethod
     def countInstances (self):
         return len(self.Instances)
-        
+
     @ classmethod
     def allSeqList (self):
         if self.Instances:
@@ -54,30 +54,30 @@ class Reference(object):
             if seqname in ref.seq_list:
                 return ref.name
         return None
-    
+
     @ classmethod
     def allName (self):
         return [ref.name for ref in self.Instances]
-    
+
     @ classmethod
     def allFasta (self):
         return [ref.fasta_path for ref in self.Instances]
-    
+
     @ classmethod
     def getInstances (self):
         return self.Instances
-    
+
     @ classmethod
     def printInstances (self):
         for ref in self.Instances:
             print (repr(ref))
-    
+
     @ classmethod
     def resetInstances (self):
         print "Clearing Reference instances list"
         self.Instances = []
         self.id_count = 0
-        
+
     #~~~~~~~FONDAMENTAL METHODS~~~~~~~#
 
     def __init__(self,
@@ -98,7 +98,7 @@ class Reference(object):
         self.mk_covgraph = mk_covgraph
         self.mk_bedgraph = mk_bedgraph
         self.mk_vcf = mk_vcf
-        
+
         # Add the instance to the class instance tracking list
         self.Instances.append(self)
 
@@ -108,7 +108,7 @@ class Reference(object):
         msg+= "\tFasta_path: {}\n".format(self.fasta_path)
         msg+= "\tSequence list:  {}\n".format("  ".join(self.seq_list))
         msg+= "\tRequired output:"
-        
+
         if self.mk_sam:
             msg+= "  Sam file"
         if self.mk_covgraph:
@@ -124,7 +124,7 @@ class Reference(object):
         return "<Instance of {} from {} >\n".format(self.__class__.__name__, self.__module__)
 
     #~~~~~~~FONDAMENTAL METHODS~~~~~~~#
-    
+
     def _fasta_reader(self):
         """
         Read seq names a fasta file and verify the absence of duplicates
@@ -134,16 +134,16 @@ class Reference(object):
                 fp = gzip.open(self.fasta_path,"rb")
             else:
                 fp = open(self.fasta_path,"rb")
-                
+
         except Exception as E:
             fp.close()
             raise Exception (E.message+"Can not create a list of sequence from{}".format(self.name))
-        
+
         seq_list=[]
         for seq in SeqIO.parse(fp, "fasta"):
             # verify the absence of the sequence name in the current list and in other ref seq_list
             if seq.id in seq_list:
-                raise Exception ("{} is duplicateda in the current reference\n".format(seq.id, self.name))
+                raise Exception ("{} is duplicated in the current reference\n".format(seq.id, self.name))
             if seq.id in self.allSeqList():
                 raise Exception ("{} is duplicated in another reference\n".format(seq.id))
             else:
@@ -151,10 +151,21 @@ class Reference(object):
 
             stdout.write("*")
             stdout.flush()
-        
+
         print ("")
         fp.close()
-        
+
         return seq_list
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+class Sequence(object):
+    """
+    @class  Sequence
+    @brief  Object oriented class containing informations of reference
+    """
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+    pass
+    # name
+    # len
+    # nread
