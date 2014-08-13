@@ -11,15 +11,17 @@
 outdir : test
 outprefix : out
 
-### REFERENCE DEFINITIONS (Contavect can manage an unlimited number of references)
+### REFERENCE DEFINITIONS
 [Ref1]
+name : AAV
 fasta : ./references/AAV-RSV-GFP.fa.gz
-sam : True
+sam : False
 covgraph : True
 bedgraph : True
 pileup : True
 
 [Ref2]
+name : Backbone
 fasta : ./references/Bacterial_backbone.fa.gz
 sam : False
 covgraph : True
@@ -27,6 +29,7 @@ bedgraph : True
 pileup : True
 
 [Ref3]
+name : Helper 
 fasta : ./references/Helper_plasmid.fa.gz
 sam : False
 covgraph : True
@@ -34,6 +37,7 @@ bedgraph : True
 pileup : True
 
 [Ref4]
+name : Ad5
 fasta : ./references/Ad5_in_293_genome.fa.gz
 sam : False
 covgraph : True
@@ -41,28 +45,29 @@ bedgraph : True
 pileup : True
 
 [Ref5]
-fasta : ./references/hg19_chr11.fa.gz
+name : hg19
+fasta : ./references/HG_GRCh38_chr11_22.fa.gz
 sam : False
 covgraph : False
 bedgraph : True
 pileup : False
 
 [Ref_Masking]
-ref_masking : False
+ref_masking : True
 blastn_opt : -evalue 0.1
 mkblastdb_opt :
 blastn : blastn
 mkblastdb : mkblastdb
 
 [Fastq]
-R1 : ./test/fastq/1M_AAV_R1_1_filtered.fastq
-R2 : ./test/fastq/1M_AAV_R2_2_filtered.fastq
+R1 : ./fastq/1M_AAV_R1.fastq.gz
+R2 : ./fastq/1M_AAV_R2.fastq.gz
 
 [Fastq_Filtering]
 input_qual : fastq-sanger
-quality_filtering : False
-min_qual : 30
-adapter_trimming : False
+quality_filtering : True
+min_qual : 25
+adapter_trimming : True
 adapter_path : ./adapter.fa
 min_read_len : 0.6
 min_match_len : 0.8
@@ -82,6 +87,7 @@ bwa_index : bwa index
 
 [BedGraph]
 min_depth : 5
+report_all : False
 
 [PileUp]
 min_depth : 1000

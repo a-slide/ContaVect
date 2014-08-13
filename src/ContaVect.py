@@ -51,7 +51,7 @@ def main(conf):
 
     ref_dir = path.join(main_dir+"references/")
     mkdir(ref_dir)
-    extract_ref(conf, ref_dir) # Reference object are instancied and accessible through the class methods
+    extract_ref(conf, ref_dir) # Reference object are created and accessible through class methods
 
     # Reference Masking
     if ref_masking:
@@ -92,10 +92,12 @@ def main(conf):
         index_outdir = index_dir,
         align_outname = conf.get("General", "outprefix")+".sam",
         index_outname = conf.get("General", "outprefix")+".idx")
-
+    
+    print ("\n##### FILTER ALIGNED READS AND ASSIGN A REFERENCE #####\n")
     # Split the output sam file according to each reference
     sam_spliter (conf, sam)
 
+    print ("\n##### GENERATE OUTPUT FOR EACH REFERENCE #####\n")
     # Ask references to generate the output they were configured to
     result_dir = path.join(main_dir+"results/")
     mkdir(result_dir)
@@ -115,20 +117,20 @@ def extract_ref(conf, refdir="./"):
     while True:
         # Iterate over Ref in the config file until no more reference is found
         ref_id = "Ref"+str(i)
-
         if not conf.has_section(ref_id):
             break
         try:
+            name = (conf.get(ref_id, "name")
             fasta = expand_file(conf.get(ref_id, "fasta"), outdir=refdir, copy_ungz=True)
             sam = conf.getboolean (ref_id, "sam")
             covgraph = conf.getboolean (ref_id, "covgraph")
             bedgraph = conf.getboolean (ref_id, "bedgraph")
-            vcf = conf.getboolean (ref_id, "pileup")
+            pileup = conf.getboolean (ref_id, "pileup")
         except ValueError:
             sleep (2)
-            print ("ERROR INVALID VALUES, SKIPPING THE REFERENCE NUMBER "+str(i))
+            print ("Error invalid values, skipping the reference number "+str(i))
         else:
-            a = Reference(fasta, sam, covgraph, bedgraph, vcf)
+            a = Reference(name, fasta, sam, covgraph, bedgraph, pileup)
             print (repr(a))
             i+=1
 
@@ -205,8 +207,8 @@ def sam_spliter (conf, sam):
     unmapped = []
 
     for read in samfile:
-        if not read.is_secondary:
-            if read.mapq < 30:
+        if not read.is_secondary: # Skip seconddary
+            if read.mapq < 30: # Filter only if mapq if good
                 unmapped.append(read)
             else:
                 try:
