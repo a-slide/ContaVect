@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
 #~~~~~~~GLOBAL IMPORTS~~~~~~~#
 
 # Standard library packages import
@@ -30,7 +29,8 @@ from CV_Reference import Reference
 #~~~~~~~MAIN FUNCTION~~~~~~~#
 
 def main(conf):
-
+    """
+    """
     stime = time()
 
     # Create a main directory for file created during the programm
@@ -39,12 +39,13 @@ def main(conf):
         mkdir(main_dir)
     else:
         main_dir = path.abspath ("./")+"/"
-    
-    #get boolean value for pipeline orientation 
+
+    # Get boolean value for pipeline orientation
     ref_masking = conf.getboolean("Ref_Masking", "ref_masking")
     quality_filtering = conf.getboolean("Fastq_Filtering", "quality_filtering")
     adapter_trimming = conf.getboolean("Fastq_Filtering", "adapter_trimming")
-    
+    bwa_index = conf.get("Bwa Alignment", "index")
+
     print ("\n##### EXPAND AND PARSE REFERENCES #####\n")
     # Expand the reference sequence to avoid multiple decompression during Program execution
 
@@ -58,6 +59,8 @@ def main(conf):
         db_dir = path.join(main_dir, "blast_db/")
         mkdir (db_dir)
         ref_list = iterative_masker(conf, db_dir, ref_dir)
+        # Erase existing index value if ref masking was performed
+        bwa_index = None
 
     # Fastq Filtering
     if quality_filtering or adapter_trimming:
@@ -79,7 +82,7 @@ def main(conf):
     # An index will be generated if no index was provided
     sam = Mem.align (
         R1, R2,
-        index = conf.get("Bwa Alignment", "index"),
+        index = bwa_index,
         ref = [ref.fasta_path for ref in Reference.Instances],
         align_opt = conf.get("Bwa Alignment", "mem_opt"),
         index_opt = conf.get("Bwa Alignment", "index_opt"),
@@ -90,10 +93,15 @@ def main(conf):
         align_outname = conf.get("General", "outprefix")+".sam",
         index_outname = conf.get("General", "outprefix")+".idx")
 
+    # Split the output sam file according to each reference
     sam_spliter (conf, sam)
-    
-    print Reference.printInstances()
-    
+
+    # Ask references to generate the output they were configured to
+    result_dir = path.join(main_dir+"results/")
+    mkdir(result_dir)
+    for ref in Reference.Instances:
+        ref.mk_output(outpath=result_dir+conf.get("General", "outprefix"))
+
     print ("\n##### DONE #####\n")
     print ("Total execution time = {}s".format(round(time()-stime, 2)))
 
@@ -115,7 +123,7 @@ def extract_ref(conf, refdir="./"):
             sam = conf.getboolean (ref_id, "sam")
             covgraph = conf.getboolean (ref_id, "covgraph")
             bedgraph = conf.getboolean (ref_id, "bedgraph")
-            vcf = conf.getboolean (ref_id, "vcf")
+            vcf = conf.getboolean (ref_id, "pileup")
         except ValueError:
             sleep (2)
             print ("ERROR INVALID VALUES, SKIPPING THE REFERENCE NUMBER "+str(i))
@@ -125,7 +133,8 @@ def extract_ref(conf, refdir="./"):
             i+=1
 
 def iterative_masker (conf, db_dir="./", ref_dir="./"):
-
+    """
+    """
     # Iterate over index in Reference.instances staring by the last one until the 2nd one
     for i in range(Reference.countInstances()-1, 0, -1):
         # Extract subject and query_list from ref_list
@@ -151,7 +160,8 @@ def iterative_masker (conf, db_dir="./", ref_dir="./"):
             compress_ouput=False )
 
 def fastq_filter (conf, outdir="./", quality_filtering=False, adapter_trimming=False):
-
+    """
+    """
     # Define a quality filter object
     qFilter = None
     if quality_filtering:
@@ -190,17 +200,22 @@ def sam_spliter (conf, sam):
     """
     """
     samfile = pysam.Samfile( sam, "r" )
-    
+
+    #TODO define an unmapped reference
     unmapped = []
-    
+
     for read in samfile:
         if not read.is_secondary:
             if read.mapq < 30:
                 unmapped.append(read)
             else:
-                seqname = samfile.getrname(read.tid)
-                sucess = Reference.addRead(seqname, read)
-                assert sucess, ""
+                try:
+                    Reference.addRead(samfile.getrname(read.tid), read)
+                except ValueError:
+                    unmapped.append(read)
+
+    print ("Number of unmapped reads : {}\n".format(len (unmapped)))
+
 
 #~~~~~~~TOP LEVEL INSTRUCTIONS~~~~~~~#
 if __name__ == '__main__':
