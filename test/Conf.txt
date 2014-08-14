@@ -15,42 +15,27 @@ outprefix : out
 [Ref1]
 name : AAV
 fasta : ./references/AAV-RSV-GFP.fa.gz
-sam : False
-covgraph : True
-bedgraph : True
-pileup : True
+output : bam	sam	bedgraph	bed	covgraph	variant
 
 [Ref2]
 name : Backbone
 fasta : ./references/Bacterial_backbone.fa.gz
-sam : False
-covgraph : True
-bedgraph : True
-pileup : True
+output : bam	sam	bedgraph	bed	covgraph	variant
 
 [Ref3]
 name : Helper 
 fasta : ./references/Helper_plasmid.fa.gz
-sam : False
-covgraph : True
-bedgraph : True
-pileup : True
+output : bam	sam	bedgraph	bed	covgraph	variant
 
 [Ref4]
 name : Ad5
 fasta : ./references/Ad5_in_293_genome.fa.gz
-sam : False
-covgraph : True
-bedgraph : True
-pileup : True
+output : bam	bedgraphcovgraph
 
 [Ref5]
 name : hg19
 fasta : ./references/HG_GRCh38_chr11_22.fa.gz
-sam : False
-covgraph : False
-bedgraph : True
-pileup : False
+output : bam	bedgraph	
 
 [Ref_Masking]
 ref_masking : True
@@ -65,10 +50,11 @@ R2 : ./fastq/1M_AAV_R2.fastq.gz
 
 [Fastq_Filtering]
 input_qual : fastq-sanger
-quality_filtering : True
+quality_filtering : False
 min_qual : 25
-adapter_trimming : True
-adapter_path : ./adapter.fa
+
+adapter_trimming : False
+adapters : GATCGGAAGAGCACACGTCTGAACTCCAGTCACACAGTGATCTCGTATGC
 min_read_len : 0.6
 min_match_len : 0.8
 min_match_score : 1.4
@@ -78,19 +64,19 @@ ssw_mismatch : 2
 ssw_gap_open : 3
 ssw_gap_extend : 1
 
-[Bwa Alignment]
-index : ./test/bwa_index/out.idx
-mem_opt : -M
-index_opt :
-bwa_mem : bwa mem
-bwa_index : bwa index
+[Bwa_Alignment]
+bwa_index : ./test/bwa_index/out.idx
+bwa_mem_opt : -M
+bwa_index_opt :
+bwa_aligner  : bwa mem
+bwa_indexer : bwa index
 
-[BedGraph]
-min_depth : 5
-report_all : False
-
-[PileUp]
-min_depth : 1000
-min_freq : 0.5
+[Output]
+min_mapq : 30
+unmapped_bam = True
+unmapped_sam = True
+cov_min_depth : 5
+var_min_depth : 1000
+var_min_freq : 0.5
 
 

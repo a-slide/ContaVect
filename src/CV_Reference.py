@@ -3,11 +3,9 @@
 # Standard library packages import
 import gzip
 from sys import stdout
-from os import path
 
 # Third party packages import
 from Bio import SeqIO
-import pysam
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 class Reference(object):
@@ -47,7 +45,7 @@ class Reference(object):
         if self.Instances:
             all_seq_list=[]
             for ref in self.Instances:
-                all_seq_dict.extend([name for name in ref.seq_dict.keys()])
+                all_seq_list.extend([name for name in ref.seq_dict.keys()])
             return all_seq_list
         else:
             return []
@@ -74,7 +72,7 @@ class Reference(object):
         print "Clearing Reference instances list"
         self.Instances = []
         self.id_count = 0
-
+    
     @ classmethod
     def addRead (self, seq, read):
         """
@@ -88,18 +86,27 @@ class Reference(object):
                 return
 
         raise ValueError, "Seq name not found in references"
+    
+    @ classmethod
+    def set(self, key, value):
+        for ref in reference.Instances:
+            ref.set(key, value)
+    
+    @ classmethod
+    def mk_output (self, outpath="./out"):
+        for ref in reference.Instances:
+            ref.mk_output (outpath)
 
     #~~~~~~~FONDAMENTAL METHODS~~~~~~~#
 
-    def __init__(self, name, ref_fasta, Bam, Covgraph, BedGraph, PileUp):
+    def __init__(self, name, ref_fasta, Bam, Coverage, Variant):
         """
         @param name Name of the reference
         @param ref_fasta Path to the fasta reference needed to determine sequence name associated
         with this reference
         @param Bam BamMaker object to create bam sam and bai
-        @param Covgraph CovgraphMaker object to create a coverage graph
-        @param Covgraph CovgraphMaker object to create a BedGraph file
-        @param PileUp PileUpMaker object to create PileUp variants file
+        @param Covgraph Coverage object to create a coverage graph, bedgraph and bed
+        @param Variant Variant object to create frequent variant report file
         """
 
         # Store object variables
@@ -108,12 +115,12 @@ class Reference(object):
         self.id = self.next_id()
         self.ref_fasta = ref_fasta
         self.Bam = Bam
-        self.CovGraph = CovGraph
-        self.BedGraph = BedGraph
-        self.PileUp = PileUp
+        self.Coverage = Coverage
+        self.Variant = Variant
 
         # Define additional variables
         self.seq_dict = {}
+        self.bam_header = ""
         self.nread = 0
 
         # Parse the fasta reference
@@ -123,31 +130,29 @@ class Reference(object):
         self.Instances.append(self)
 
     def __repr__(self):
-        msg = "REF {}".format(self.id)
+        msg = "REFERENCE {}".format(self.id)
         msg+= "\tName: {}\n".format(self.name)
         msg+= "\tFasta_path: {}\n".format(self.ref_fasta)
+        msg+= "\tTotal reference length: {}\n".format(sum([seq.length for seq in self.seq_dict.values()]))
         msg+= "\tSequence list:\n"
         for seq in self.seq_dict.values():
-            msg+= "\t{}\n".format(repr(seq))
-        msg+= "\tTotal reference length: {}\n".format(sum([seq.length for seq in self.seq_dict.values()]))
-        msg+= "\tTotal read mapped: {}\n".format(sum([seq.nread for seq in self.seq_dict].values()))
-        msg+= "\tRequired output: {}
-
-        ###############################################################################################################################
-
-        if self.mk_sam:
-            msg+= "  Sam file"
-        if self.mk_covgraph:
-            msg += "  Coverage graph"
-        if self.mk_bedgraph:
-            msg += "  Bedgraph file"
-        if self.mk_pileup:
-            msg += "  Pileup file"
-        msg+="\n"
+            msg+= "\t* {}".format(repr(seq))
+        
+        for i in [self.Bam, self.Coverage, self.Variant]:
+            msg+= repr(i)
+        
+        if self.nread:
+            msg+= "\tTotal read mapped: {}\n".format(self.nread)
         return (msg)
 
     def __str__(self):
         return "<Instance of {} from {} >\n".format(self.__class__.__name__, self.__module__)
+        
+    def get(self, key):
+        return self.__dict__[key]
+
+    def set(self, key, value):
+        self.__dict__[key] = value
 
     #~~~~~~~PUBLIC METHODS~~~~~~~#
 
@@ -163,7 +168,7 @@ class Reference(object):
         cov_dict = {name: seq.mk_coverage() for name, seq in self.seq_dict.items()}
 
         # Call Behaviour methods
-        self.Bam.make(header, read_dict, outpath+self.name)
+        self.Bam.make(bam_header, read_dict, outpath+self.name)
         self.CovGraph.make(cov_dict, outpath, self.name)
         self.BedGraph.make(cov_dict, outpath, self.name)
         self.PileUp.make(Bam.bam, outpath, self.name)
@@ -173,8 +178,10 @@ class Reference(object):
     def _fasta_reader(self):
         """
         Read seq names a fasta file and verify the absence of duplicates
-        Integrated in
+        Create a dictionary CV_Reference.Sequence object indexed by sequence name
         """
+        
+        # Init a file pointer
         try:
             if self.ref_fasta[-2:].lower() == "gz":
                 fp = gzip.open(self.ref_fasta,"rb")
@@ -184,7 +191,7 @@ class Reference(object):
         except Exception as E:
             fp.close()
             raise Exception (E.message+"Can not create a list of sequence from{}".format(self.name))
-
+        
         seq_dict={}
         for seq in SeqIO.parse(fp, "fasta"):
             # verify the absence of the sequence name in the current list and in other ref seq_dict
@@ -201,7 +208,6 @@ class Reference(object):
 
         return seq_dict
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 class Sequence(object):
     """
@@ -217,11 +223,20 @@ class Sequence(object):
         self.read_list = []
 
     def __repr__(self):
-        msg = "{}({}bp) : {} read(s)\n".format(self.name, self.length, self.nread)
-        return (msg)
+        msg = "{} ({} bp)".format(self.name, self.length)
+        if self.nread:
+            return (msg + "{} read(s)\n".format(self.nread))
+        else:
+            return (msg + "\n")
 
     def __str__(self):
         return "<Instance of {} from {} >\n".format(self.__class__.__name__, self.__module__)
+        
+    def get(self, key):
+        return self.__dict__[key]
+
+    def set(self, key, value):
+        self.__dict__[key] = value
 
     #~~~~~~~PUBLIC METHODS~~~~~~~#
 
