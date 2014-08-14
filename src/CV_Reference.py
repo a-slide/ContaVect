@@ -58,7 +58,7 @@ class Reference(object):
 
     @ classmethod
     def allFasta (self):
-        return [ref.fasta_path for ref in self.Instances]
+        return [ref.ref_fasta for ref in self.Instances]
 
     @ classmethod
     def getInstances (self):
@@ -86,42 +86,37 @@ class Reference(object):
                 ref.seq_dict[seq].add_read(read)
                 ref.nread+=1
                 return
-        
+
         raise ValueError, "Seq name not found in references"
 
     #~~~~~~~FONDAMENTAL METHODS~~~~~~~#
 
-    def __init__(self,
-            name,
-            fasta_path,
-            Bam,
-            Covgraph,
-            BedGraph,
-            PileUp):
+    def __init__(self, name, ref_fasta, Bam, Covgraph, BedGraph, PileUp):
         """
-        @param  
-        @param  
-        @param  
-        @param  
-        @param  
-        @param  
+        @param name Name of the reference
+        @param ref_fasta Path to the fasta reference needed to determine sequence name associated
+        with this reference
+        @param Bam BamMaker object to create bam sam and bai
+        @param Covgraph CovgraphMaker object to create a coverage graph
+        @param Covgraph CovgraphMaker object to create a BedGraph file
+        @param PileUp PileUpMaker object to create PileUp variants file
         """
-        
-        # Init object variables
+
+        # Store object variables
         print ("Creating reference object {}".format(name))
         self.name = name
         self.id = self.next_id()
-        self.fasta_path = fasta_path
-        self.seq_dict = {}
-        self.nread = 0
-
-        # Store flags and path of output files
+        self.ref_fasta = ref_fasta
         self.Bam = Bam
         self.CovGraph = CovGraph
         self.BedGraph = BedGraph
         self.PileUp = PileUp
 
-        # parse the fasta reference
+        # Define additional variables
+        self.seq_dict = {}
+        self.nread = 0
+
+        # Parse the fasta reference
         self.seq_dict = self._fasta_reader()
 
         # Add the instance to the class instance tracking list
@@ -130,16 +125,16 @@ class Reference(object):
     def __repr__(self):
         msg = "REF {}".format(self.id)
         msg+= "\tName: {}\n".format(self.name)
-        msg+= "\tFasta_path: {}\n".format(self.fasta_path)
+        msg+= "\tFasta_path: {}\n".format(self.ref_fasta)
         msg+= "\tSequence list:\n"
         for seq in self.seq_dict.values():
             msg+= "\t{}\n".format(repr(seq))
         msg+= "\tTotal reference length: {}\n".format(sum([seq.length for seq in self.seq_dict.values()]))
         msg+= "\tTotal read mapped: {}\n".format(sum([seq.nread for seq in self.seq_dict].values()))
         msg+= "\tRequired output: {}
-        
+
         ###############################################################################################################################
-        
+
         if self.mk_sam:
             msg+= "  Sam file"
         if self.mk_covgraph:
@@ -166,7 +161,7 @@ class Reference(object):
         read_dict = {name: seq.read_list for name, seq in self.seq_dict.items()}
         # Generate a simple dictionary associating seq name and coverage_list
         cov_dict = {name: seq.mk_coverage() for name, seq in self.seq_dict.items()}
-        
+
         # Call Behaviour methods
         self.Bam.make(header, read_dict, outpath+self.name)
         self.CovGraph.make(cov_dict, outpath, self.name)
@@ -181,10 +176,10 @@ class Reference(object):
         Integrated in
         """
         try:
-            if self.fasta_path[-2:].lower() == "gz":
-                fp = gzip.open(self.fasta_path,"rb")
+            if self.ref_fasta[-2:].lower() == "gz":
+                fp = gzip.open(self.ref_fasta,"rb")
             else:
-                fp = open(self.fasta_path,"rb")
+                fp = open(self.ref_fasta,"rb")
 
         except Exception as E:
             fp.close()
@@ -229,7 +224,7 @@ class Sequence(object):
         return "<Instance of {} from {} >\n".format(self.__class__.__name__, self.__module__)
 
     #~~~~~~~PUBLIC METHODS~~~~~~~#
-    
+
     def add_read (self, read):
         """
         Add a read to read_list and update the counter
@@ -254,5 +249,5 @@ class Sequence(object):
         for read in self.read_list :
             for i in range (read.pos, read.pos+read.alen):
                 coverage[i]+=1
-        
+
         return coverage
