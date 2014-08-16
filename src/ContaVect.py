@@ -8,11 +8,14 @@ try:
     from time import time
     import ConfigParser
     from sys import argv
+    import csv
+
     # Third party packages
     import pysam
     import Bio
+
     # Local Package import
-    from Utilities import mkdir, file_basename, file_name, expand_file
+    from Utilities import mkdir, file_basename, file_name, expand_file, rm_blank
     from Blast import Blastn
     import RefMasker
     from FastqFT.FastqFilterPP import FastqFilterPP
@@ -20,8 +23,8 @@ try:
     from FastqFT.AdapterTrimmer import AdapterTrimmer
     from Ssw import ssw_wrap
     from Bwa import Mem
-    from CV_Reference import Reference
-    from pySamTools import Bam, Coverage, Variant
+    from CV_Reference import Reference, Sequence
+    from pySamTools import Bam, Coverage2, Variant
 
 except ImportError as E:
     print (E)
@@ -40,17 +43,17 @@ class Main(object):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
     #~~~~~~~FONDAMENTAL METHODS~~~~~~~#
-    
+
     def __init__ (self):
         """
         """
-            
+
         # CL ARGUMENTS AND CONF FILE PARSING
-        
+
         if len(argv) != 2:
             print ("Please provide the path to the Configuration file as an unique argument\n")
             exit()
-        
+
         self.conf = ConfigParser.RawConfigParser(allow_no_value=True)
         self.conf.read(argv[1])
         if not self.conf.sections():
@@ -58,15 +61,22 @@ class Main(object):
             exit()
         try:
             # Mandatory paramaters
-            self.outdir = self.conf.get("General", "outdir")
-            self.outprefix = self.conf.get("General", "outprefix")
+            self.outdir = rm_blank(self.conf.get("General", "outdir"), replace="_")
+            if not self.outdir:
+                self.outdir = "./"
+            if self.outdir[-1] != "/":
+                self.outdir += "/"
+            self.outprefix = rm_blank(self.conf.get("General", "outprefix"), replace="_")
+            if not self.outdir:
+                self.outdir = "out"
+
             self.ref_masking = self.conf.getboolean("Ref_Masking", "ref_masking")
-            self.R1 = self.conf.get("Fastq", "R1")
-            self.R2 = self.conf.get("Fastq", "R2")
+            self.R1 = rm_blank(self.conf.get("Fastq", "R1"), replace="\ ")
+            self.R2 = rm_blank(self.conf.get("Fastq", "R2"), replace="\ ")
             self.input_qual = self.conf.get("Fastq_Filtering", "input_qual")
             self.quality_filtering = self.conf.getboolean("Fastq_Filtering", "quality_filtering")
             self.adapter_trimming = self.conf.getboolean("Fastq_Filtering", "adapter_trimming")
-            self.bwa_index = self.conf.get("Bwa_Alignment", "bwa_index")
+            self.bwa_index = rm_blank(self.conf.get("Bwa_Alignment", "bwa_index"), replace="\ ")
             self.bwa_mem_opt = self.conf.get("Bwa_Alignment", "bwa_mem_opt")
             self.bwa_index_opt = self.conf.get("Bwa_Alignment", "bwa_index_opt")
             self.bwa_aligner = self.conf.get("Bwa_Alignment", "bwa_aligner")
@@ -77,7 +87,7 @@ class Main(object):
             self.cov_min_depth = self.conf.getint("Output", "cov_min_depth")
             self.var_min_depth = self.conf.getint("Output", "var_min_depth")
             self.var_min_freq = self.conf.getfloat("Output", "var_min_freq")
-            
+
             # Conditional paramaters
             if self.ref_masking:
                 self.blastn_opt = self.conf.get("Ref_Masking", "blastn_opt")
@@ -88,6 +98,7 @@ class Main(object):
                 self.min_qual = self.conf.getint("Fastq_Filtering", "min_qual")
             if self.adapter_trimming:
                 self.adapters = self.conf.get("Fastq_Filtering", "adapters").split()
+                self.find_rc = self.conf.getboolean("Fastq_Filtering", "find_rc")
                 self.min_read_len = self.conf.getfloat("Fastq_Filtering", "min_read_len")
                 self.min_match_len = self.conf.getfloat("Fastq_Filtering", "min_match_len")
                 self.min_match_score = self.conf.getfloat("Fastq_Filtering", "min_match_score")
@@ -95,19 +106,19 @@ class Main(object):
                 self.ssw_mismatch = self.conf.getint("Fastq_Filtering", "ssw_mismatch")
                 self.ssw_gap_open = self.conf.getint("Fastq_Filtering", "ssw_gap_open")
                 self.ssw_gap_extend = self.conf.getint("Fastq_Filtering", "ssw_gap_extend")
-            
+
             # More complicated import in a list of dictionnary for references informations
             self.raw_ref_list =[]
-            
+
             for i in range(1,100):
                 ref_id = "Ref"+str(i)
                 if not self.conf.has_section(ref_id):
                     break
-                ref = { 'name'   : self.conf.get(ref_id, "name"),
-                        'fasta'  : self.conf.get(ref_id, "fasta"),
+                ref = { 'name'   : rm_blank(self.conf.get(ref_id, "name"), replace="_"),
+                        'fasta'  : rm_blank(self.conf.get(ref_id, "fasta"), replace="\ "),
                         'output' : self.conf.get(ref_id, "output").split(),}
                 self.raw_ref_list.append(ref)
-        
+
         except ConfigParser.NoOptionError as E:
             print (E)
             print ("An option is missing in the configuration file")
@@ -123,7 +134,6 @@ class Main(object):
             print ("One of the value in the configuration file is not in the correct format")
             print ("Please report to the descriptions in the configuration file\n")
             exit()
-    
     # TODO verify if files are valid and numeric value not negative
 
     def __repr__(self):
@@ -135,47 +145,56 @@ class Main(object):
 
     def __str__(self):
         return "<Instance of {} from {} >\n".format(self.__class__.__name__, self.__module__)
-        
+
     def get(self, key):
         return self.__dict__[key]
 
     def set(self, key, value):
         self.__dict__[key] = value
-        
+
     #~~~~~~~PUBLIC METHODS~~~~~~~#
-    
+
     def run(self):
         """
+        Launch the complete pipeline of analyse:
+
+        * Reference importation/parsing
+        * Facultative step of reference masking to remove homologies between reference sequences
+        * Facultative step of Fastq quality Filtering/ adapter trimming
+        * Facultative step of reference indexing for bwa from merged references
+        * Short read alignment with bwa mem
+        * Spliting of sam to attribute reads to each original references (or unmmapped)
+        * Output per reference bam, sam, bedgraph, bed, covgraph, variant call
+        * Output distribution table and graph
         """
-        #stime = time()
-        mkdir(self.outdir)
+        stime = time()
+        self.outdir = mkdir(path.abspath(self.outdir))
+        self.ref_dir = mkdir(path.join(self.outdir, "references/"))
+        self.db_dir = mkdir(path.join(self.outdir, "blast_db/"))
+        self.fastq_dir = mkdir(path.join(self.outdir, "fastq/"))
+        self.align_dir = mkdir(path.join(self.outdir, "bwa_align/"))
+        self.index_dir = mkdir(path.join(self.outdir, "bwa_index/"))
+        self.result_dir = mkdir(path.join(self.outdir, "results/"))
 
         print ("\n##### PARSE REFERENCES #####\n")
         # Create CV_Reference.Reference object for each reference easily accessible through
         # Reference class methods
-        self._extract_ref() 
+        self._extract_ref()
 
         # Reference Masking
         if self.ref_masking:
             print ("\n##### REFERENCE HOMOLOGIES MASKING #####\n")
-            self.ref_dir = mkdir(path.join(self.outdir, "references/"))
-            self.db_dir = mkdir(path.join(self.outdir, "blast_db/"))
             ref_list = self._iterative_masker()
             # Erase existing index value if ref masking was performed
             bwa_index = None
 
         # Fastq Filtering
-        if quality_filtering or adapter_trimming:
+        if self.quality_filtering or self.adapter_trimming:
             print ("\n##### FASTQ FILTERING #####\n")
-            self.fastq_dir = mkdir(path.join(self.outdir+"fastq/"))
             self._fastq_filter()
 
         # BWA alignment
         print ("\n##### READ REFERENCES AND ALIGN WITH BWA #####\n")
-        # Create a folder for aligned read and index file storage
-        self.align_dir = mkdir(path.join(self.outdir+"bwa_align/"))
-        self.index_dir = mkdir(path.join(self.outdir+"bwa_index/"))
-
         # An index will be generated if no index was provided
         self.sam = Mem.align (
             self.R1, self.R2,
@@ -189,61 +208,58 @@ class Main(object):
             index_outdir = self.index_dir,
             align_outname = self.outprefix+".sam",
             index_outname = self.outprefix+".idx")
-        
+
         print ("\n##### FILTER ALIGNED READS AND ASSIGN A REFERENCE #####\n")
         # Split the output sam file according to each reference
-        sam_spliter (conf, sam)
-        
-        print ("\n##### GENERATE OUTPUT FOR GARBAGE READS #####\n")
-        ###self._do something with unmapped###
+        self._sam_spliter ()
 
         print ("\n##### GENERATE OUTPUT FOR EACH REFERENCE #####\n")
+        # Deal with garbage read dictionnary
+        self._garbage_output()
         # Ask references to generate the output they were configured to
-        self.result_dir = mkdir(path.join(self.outdir+"results/"))
-        
-        Reference.mk_output(self.result_dir+self.outprefix)
-        
-        for ref in Reference.Instances:
-            ref.mk_output(outpath=result_dir+conf.get("General", "outprefix"))
+        Reference.mk_output_global(self.result_dir+self.outprefix)
+        # Create a distribution table
+        self._distribution_output()
+
 
         print ("\n##### DONE #####\n")
         print ("Total execution time = {}s".format(round(time()-stime, 2)))
 
     ##~~~~~~~PRIVATE METHODS~~~~~~~#
-    
+
     def _extract_ref(self):
         """
         Import and expand fasta references and associated flags in a Reference object
+        expand the file if Gziped to avoid multiple compression/decompression during execution
         """
-        
+
         for ref in self.raw_ref_list:
             Ref = Reference(
                 name = ref['name'],
-                ref_fasta = ref['fasta'],
-                Bam = Bam.BamMaker(
+                ref_fasta = expand_file(fp=ref['fasta'], outdir=self.ref_dir, copy_ungz=True),
+                bam_maker = Bam.BamMaker(
                     make_bam = 'bam' in ref['output'],
                     make_sam = 'sam' in ref['output']),
-                Coverage = Coverage.CoverageMaker(
+                cov_maker = Coverage2.CoverageMaker(
                     min_depth=self.cov_min_depth,
                     make_bedgraph = 'bedgraph' in ref['output'],
                     make_bed = 'bed' in ref['output'],
                     make_covgraph = 'covgraph' in ref['output']),
-                Variant = Variant.VariantMaker(
+                var_maker = Variant.VariantMaker(
                     min_depth=self.var_min_depth,
                     min_freq=self.var_min_freq,
                     make_freqvar = 'variant' in ref['output']))
-
             print (repr(Ref))
 
     def _iterative_masker (self): #### TODO The fuction directly manipulate reference field= change that
         """
         Mask references homologies iteratively, starting by the last reference which is masked by
-        all the other then to the penultimate mask by all references except the last and and so
-        forth until there is only on reference remaining
+        all the others then to the penultimate masked by all others except the last and and so
+        forth until there is only 1 reference remaining
         """
         # Iterate over index in Reference.instances staring by the last one until the 2nd one
         for i in range(Reference.countInstances()-1, 0, -1):
-            
+
             # Extract subject and query_list from ref_list
             subject = Reference.Instances[i]
             query_list = Reference.Instances[0:i]
@@ -271,7 +287,7 @@ class Main(object):
         Filter fastq with FastqFilterPP
         """
         # Define a quality filter object
-        
+
         if self.quality_filtering:
             qFilter = QualityFilter (self.min_qual)
         else:
@@ -280,12 +296,13 @@ class Main(object):
         # Define a adapter trimmer object
         if self.adapter_trimming:
             trimmer = AdapterTrimmer(
-                aligner = ssw_wrap.Aligner(
+                Aligner = ssw_wrap.Aligner(
                     match = self.ssw_match,
                     mismatch = self.ssw_mismatch,
                     gap_open = self.ssw_gap_open,
                     gap_extend = self.ssw_gap_extend),
-                adapters = self.adapters, ############ TODO = Adapt FastqFilterPP to support a list of string instead of a fasta path
+                adapters = self.adapters,
+                find_rc = self.find_rc,
                 min_read_len = self.min_read_len,
                 min_match_len = self.min_match_len,
                 min_match_score = self.min_match_score)
@@ -293,7 +310,7 @@ class Main(object):
             trimmer = None
 
         # Filter fastq for quality and adapter with FastqFilterPP
-        self.fFilter = FastqFilterPP (
+        fFilter = FastqFilterPP (
             self.R1, self.R2,
             quality_filter = qFilter,
             adapter_trimmer = trimmer,
@@ -308,35 +325,86 @@ class Main(object):
         """
         """
         samfile = pysam.Samfile(self.sam, "r" )
-        
+        self.bam_header = samfile.header
+
         # Give the header of the sam file to all Reference.Instances to respect the same order
         # references in sorted bam files
-        Reference.set("bam_header", samfile.header)
-        
+        Reference.set_global("bam_header", self.bam_header)
+
         # Create a dict to collect unmapped and low quality reads
-        self.garbage_dict = {'LowMapq' :[] , 'Unmapped' : [], 'Secondary' : []}
-        
+        Secondary = Sequence (name = 'Secondary', length = 0)
+        Unmapped = Sequence (name = 'Unmapped', length = 0)
+        LowMapq = Sequence (name = 'LowMapq', length = 0)
+        self.garbage_read = [Secondary, Unmapped, LowMapq]
+
         for read in samfile:
             # Always remove secondary alignments
             if read.is_secondary:
-                garbage_dict['Secondary'].append(read)
-            
+                Secondary.add_read(read)
             # Filter Unmapped reads
             elif read.tid == -1:
-                garbage_dict['Unmapped'].append(read)
-                
+                Unmapped.add_read(read)
             # Filter Low MAPQ reads
             elif read.mapq < self.min_mapq:
-                garbage_dict['LowMapq'].append(read)
-            
-            # Finally if all is fine attribute the read to a Reference 
+                LowMapq.add_read(read)
+            # Finally if all is fine attribute the read to a Reference
             else:
                 Reference.addRead(samfile.getrname(read.tid), read)
 
+    def _garbage_output (self):
+        """
+        Output bam /sam for garbage reads
+        """
+
+        # Define a generic Bam.BamMaker resulting in unsorted bam/sam for all garbage reads
+        bam_maker = Bam.BamMaker(
+            sort=False,
+            make_index=False,
+            make_bam = self.unmapped_bam,
+            make_sam = self.unmapped_sam)
+
+        for seq in self.garbage_read:
+            print "Processing garbage reads :{}\tReads aligned :{} ".format(seq.name, seq.nread)
+            bam_maker.make(
+                header = self.bam_header,
+                read_col = seq.read_list,
+                outpath = self.result_dir+self.outprefix,
+                ref_name = seq.name)
+
+    def _distribution_output (self):
+        """
+        """
+        output = "{}{}_Ref_distribution.csv".format(self.result_dir, self.outprefix)
+
+        with open(output, 'wb') as csvfile:
+            writer = csv.writer(csvfile, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
+
+            # Table for all reference
+            writer.writerow(["ALL REFERENCES "])
+            writer.writerow(["Ref name","length","nread","RPKB"])
+            for ref in Reference.getInstances():
+                writer.writerow([ref.name, len(ref), ref.nread, float(ref.nread)/len(ref)*1000])
+            # Add a line for garbage reads
+            nread = sum([seq.nread for seq in self.garbage_read])
+            writer.writerow(["Garbage_Reads","NA",nread,"NA"])
+
+            # Table decomposing Sequence per Reference
+            for ref in Reference.getInstances():
+                writer.writerow([""])
+                writer.writerow(["REFERENCE "+ref.name])
+                writer.writerow(["Seq name","length","nread","RPKB"])
+                for seq in ref.seq_dict.values():
+                    writer.writerow([seq.name, len(seq), seq.nread, float(seq.nread)/len(seq)*1000])
+
+            # Add a lines for garbage reads
+            writer.writerow([""])
+            writer.writerow(["REFERENCE Garbage reads"])
+            writer.writerow(["Seq name","length","nread","RPKB"])
+            for seq in self.garbage_read:
+                writer.writerow([seq.name, "NA", seq.nread, "NA"])
 
 #~~~~~~~TOP LEVEL INSTRUCTIONS~~~~~~~#
 if __name__ == '__main__':
-    
+
     main = Main()
     main.run()
-

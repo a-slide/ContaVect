@@ -72,7 +72,7 @@ class Reference(object):
         print "Clearing Reference instances list"
         self.Instances = []
         self.id_count = 0
-    
+
     @ classmethod
     def addRead (self, seq, read):
         """
@@ -86,27 +86,27 @@ class Reference(object):
                 return
 
         raise ValueError, "Seq name not found in references"
-    
+
     @ classmethod
-    def set(self, key, value):
-        for ref in reference.Instances:
+    def set_global (self, key, value):
+        for ref in self.Instances:
             ref.set(key, value)
-    
+
     @ classmethod
-    def mk_output (self, outpath="./out"):
-        for ref in reference.Instances:
+    def mk_output_global (self, outpath="./out"):
+        for ref in self.Instances:
             ref.mk_output (outpath)
 
     #~~~~~~~FONDAMENTAL METHODS~~~~~~~#
 
-    def __init__(self, name, ref_fasta, Bam, Coverage, Variant):
+    def __init__(self, name, ref_fasta, bam_maker, cov_maker, var_maker):
         """
         @param name Name of the reference
         @param ref_fasta Path to the fasta reference needed to determine sequence name associated
         with this reference
-        @param Bam BamMaker object to create bam sam and bai
-        @param Covgraph Coverage object to create a coverage graph, bedgraph and bed
-        @param Variant Variant object to create frequent variant report file
+        @param bam_maker BamMaker object to create bam sam and bai
+        @param cov_maker CoverageMaker object to create a coverage graph, bedgraph and bed
+        @param var_maker VariantMaker object to create frequent variant report file
         """
 
         # Store object variables
@@ -114,9 +114,9 @@ class Reference(object):
         self.name = name
         self.id = self.next_id()
         self.ref_fasta = ref_fasta
-        self.Bam = Bam
-        self.Coverage = Coverage
-        self.Variant = Variant
+        self.bam_maker = bam_maker
+        self.cov_maker = cov_maker
+        self.var_maker = var_maker
 
         # Define additional variables
         self.seq_dict = {}
@@ -137,17 +137,20 @@ class Reference(object):
         msg+= "\tSequence list:\n"
         for seq in self.seq_dict.values():
             msg+= "\t* {}".format(repr(seq))
-        
-        for i in [self.Bam, self.Coverage, self.Variant]:
+
+        for i in [self.bam_maker, self.cov_maker, self.var_maker]:
             msg+= repr(i)
-        
+
         if self.nread:
             msg+= "\tTotal read mapped: {}\n".format(self.nread)
         return (msg)
 
     def __str__(self):
         return "<Instance of {} from {} >\n".format(self.__class__.__name__, self.__module__)
-        
+
+    def __len__(self):
+        return sum([len(seq) for seq in self.seq_dict.values()])
+
     def get(self, key):
         return self.__dict__[key]
 
@@ -156,7 +159,7 @@ class Reference(object):
 
     #~~~~~~~PUBLIC METHODS~~~~~~~#
 
-    def mk_output (self, bam_header, outpath="./out"):
+    def mk_output (self, outpath="./out"):
         """
         Create output files according to user specifications
         """
@@ -164,14 +167,11 @@ class Reference(object):
         print "\tPreparing data..."
         # Generate a simple dictionary associating seq name and read_list
         read_dict = {name: seq.read_list for name, seq in self.seq_dict.items()}
-        # Generate a simple dictionary associating seq name and coverage_list
-        cov_dict = {name: seq.mk_coverage() for name, seq in self.seq_dict.items()}
 
-        # Call Behaviour methods
-        self.Bam.make(bam_header, read_dict, outpath+self.name)
-        self.CovGraph.make(cov_dict, outpath, self.name)
-        self.BedGraph.make(cov_dict, outpath, self.name)
-        self.PileUp.make(Bam.bam, outpath, self.name)
+        # Call Behavior methods
+        self.bam_maker.make(self.bam_header, read_dict, outpath, self.name)
+        self.cov_maker.make(self.bam_maker.bam, self.bam_maker.bai, outpath, self.name)
+        self.var_maker.make(self.bam_maker.bam, self.bam_maker.bai, outpath, self.name)
 
     #~~~~~~~PRIVATE METHODS~~~~~~~#
 
@@ -180,7 +180,7 @@ class Reference(object):
         Read seq names a fasta file and verify the absence of duplicates
         Create a dictionary CV_Reference.Sequence object indexed by sequence name
         """
-        
+
         # Init a file pointer
         try:
             if self.ref_fasta[-2:].lower() == "gz":
@@ -191,7 +191,7 @@ class Reference(object):
         except Exception as E:
             fp.close()
             raise Exception (E.message+"Can not create a list of sequence from{}".format(self.name))
-        
+
         seq_dict={}
         for seq in SeqIO.parse(fp, "fasta"):
             # verify the absence of the sequence name in the current list and in other ref seq_dict
@@ -231,12 +231,16 @@ class Sequence(object):
 
     def __str__(self):
         return "<Instance of {} from {} >\n".format(self.__class__.__name__, self.__module__)
-        
+
+    def __len__(self):
+        return self.length
+
     def get(self, key):
         return self.__dict__[key]
 
     def set(self, key, value):
         self.__dict__[key] = value
+
 
     #~~~~~~~PUBLIC METHODS~~~~~~~#
 
@@ -249,20 +253,6 @@ class Sequence(object):
 
     def sort_read (self):
         """
-        sort read in read_list acording to their leftmost position
+        sort read in read_list according to their leftmost position
         """
         self.read_list.sort(key = lambda x: x.pos)
-
-    def mk_coverage (self):
-        """
-        Create a coverage depth over the length of the sequence
-        """
-        # Init a null coverage list
-        coverage = [0 for i in range(self.length)]
-
-        # Fill the coverage with read values
-        for read in self.read_list :
-            for i in range (read.pos, read.pos+read.alen):
-                coverage[i]+=1
-
-        return coverage
