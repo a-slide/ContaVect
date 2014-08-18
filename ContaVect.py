@@ -204,7 +204,7 @@ class Main(object):
         # Fastq Filtering
         if self.quality_filtering or self.adapter_trimming:
             print ("\n##### FASTQ FILTERING #####\n")
-            self._fastq_filter()
+            self.R1, self.R2 = self._fastq_filter()
 
         # BWA alignment
         print ("\n##### READ REFERENCES AND ALIGN WITH BWA #####\n")
@@ -233,8 +233,8 @@ class Main(object):
         Reference.mk_output_global(self.result_dir+self.outprefix)
         # Create a distribution table
         self._distribution_output()
-
-
+        self._make_report()
+        
         print ("\n##### DONE #####\n")
         print ("Total execution time = {}s".format(round(time()-stime, 2)))
 
@@ -244,12 +244,21 @@ class Main(object):
         """
         Import and expand fasta references and associated flags in a Reference object
         expand the file if Gziped to avoid multiple compression/decompression during execution
+        if require for next operations
         """
 
         for ref in self.raw_ref_list:
+            # Expand fasta if needed
+            if self.ref_masking or not self.bwa_index:
+                print ("Expand fasta file for to accelerate reading")
+                ref_fasta = expand_file(fp=ref['fasta'], outdir=self.ref_dir, copy_ungz=False)
+            else:
+                ref_fasta = ref['fasta']
+            
+            # Create a Reference object
             Ref = Reference(
                 name = ref['name'],
-                ref_fasta = expand_file(fp=ref['fasta'], outdir=self.ref_dir, copy_ungz=True),
+                ref_fasta = ref_fasta,
                 bam_maker = Bam.BamMaker(
                     make_bam = 'bam' in ref['output'],
                     make_sam = 'sam' in ref['output']),
@@ -302,46 +311,49 @@ class Main(object):
         # Define a quality filter object
 
         if self.quality_filtering:
-            qFilter = QualityFilter (self.min_qual)
+            self.qFilter = QualityFilter (self.min_qual)
         else:
-            qFilter = None
+            self.qFilter = None
 
         # Define a adapter trimmer object
         if self.adapter_trimming:
-            trimmer = AdapterTrimmer(
-                Aligner = ssw_wrap.Aligner(
-                    match = self.ssw_match,
-                    mismatch = self.ssw_mismatch,
-                    gap_open = self.ssw_gap_open,
-                    gap_extend = self.ssw_gap_extend),
+            
+            self.ssw_aligner = ssw_wrap.Aligner(
+                match = self.ssw_match,
+                mismatch = self.ssw_mismatch,
+                gap_open = self.ssw_gap_open,
+                gap_extend = self.ssw_gap_extend)
+            
+            self.trimmer = AdapterTrimmer(
+                Aligner = self.ssw_aligner,
                 adapters = self.adapters,
                 find_rc = self.find_rc,
                 min_read_len = self.min_read_len,
                 min_match_len = self.min_match_len,
                 min_match_score = self.min_match_score)
         else:
-            trimmer = None
+            self.trimmer = None
 
         # Filter fastq for quality and adapter with FastqFilter
-        fFilter = FastqFilter (
+        self.fFilter = FastqFilter (
             self.R1, self.R2,
-            quality_filter = qFilter,
-            adapter_trimmer = trimmer,
+            quality_filter = self.qFilter,
+            adapter_trimmer = self.trimmer,
             outdir = self.fastq_dir,
             input_qual = self.input_qual,
             compress_output=False)
 
         # Print a simple result
         print ("Pairs processed: {}\t Pairs passed : {}\t in {} s".format(
-            fFilter.getCTypeVal('total'),
-            fFilter.getCTypeVal('total_pass'),
-            fFilter.get('exec_time')))
+            self.fFilter.getCTypeVal('total'),
+            self.fFilter.getCTypeVal('total_pass'),
+            self.fFilter.get('exec_time')))
 
         # Write a detailed report in a logfile
         with open (self.fastq_dir+"FastqFilter_report.txt", "wb") as outfile:
-            outfile.write(repr(fFilter))
+            outfile.write(repr(self.fFilter))
 
-        return fFilter.getTrimmed()
+        return self.fFilter.getTrimmed()
 
     def _sam_spliter (self):
         """
@@ -397,33 +409,76 @@ class Main(object):
         """
         """
         output = "{}{}_Ref_distribution.csv".format(self.result_dir, self.outprefix)
-
         with open(output, 'wb') as csvfile:
             writer = csv.writer(csvfile, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
 
             # Table for all reference
-            writer.writerow(["ALL REFERENCES "])
+            writer.writerow(["RESULTS PER REFERENCE "])
             writer.writerow(["Ref name","length","nread","RPKB"])
             for ref in Reference.getInstances():
                 writer.writerow([ref.name, len(ref), ref.nread, float(ref.nread)/len(ref)*1000])
             # Add a line for garbage reads
             nread = sum([seq.nread for seq in self.garbage_read])
             writer.writerow(["Garbage_Reads","NA",nread,"NA"])
-
+            writer.writerow([""])
+            
             # Table decomposing Sequence per Reference
+            writer.writerow(["RESULTS PER SEQUENCE "])
+            writer.writerow(["Seq name","length","nread","RPKB"])
             for ref in Reference.getInstances():
-                writer.writerow([""])
-                writer.writerow(["REFERENCE "+ref.name])
-                writer.writerow(["Seq name","length","nread","RPKB"])
                 for seq in ref.seq_dict.values():
                     writer.writerow([seq.name, len(seq), seq.nread, float(seq.nread)/len(seq)*1000])
-
             # Add a lines for garbage reads
-            writer.writerow([""])
-            writer.writerow(["REFERENCE Garbage reads"])
-            writer.writerow(["Seq name","length","nread","RPKB"])
             for seq in self.garbage_read:
                 writer.writerow([seq.name, "NA", seq.nread, "NA"])
+                
+    def _make_report (self):
+        """
+        """
+        output = "{}{}_parameters.txt".format(self.result_dir, self.outprefix)
+        with open(output, 'wb') as outfile:
+        
+            # References options
+            outfile.write("################## REFERENCES ##################\n\n")
+            outfile.write(Reference.reprInstances()) 
+            
+            if self.ref_masking:
+                outfile.write("Reference homologies were masked with RefMasker\n")
+                outfile.write("blastn options : {}\n".format(self.blastn_opt))
+                outfile.write("makeblastdb options : {}\n".format(self.mkblastdb_opt))
+                
+            else:
+                outfile.write("No Reference homologies masking done\n")
+            
+            # Fastq options
+            outfile.write("\n################## FASTQ FILES ##################\n\n")
+            outfile.write("R1 : {}\n".format(self.R1))
+            outfile.write("R2 : {}\n\n".format(self.R2))
+            
+            if self.quality_filtering or self.adapter_trimming:
+                outfile.write(repr(self.fFilter)+"\n")
+                if self.quality_filtering:
+                    outfile.write(repr (self.qFilter)+"\n")
+                if self.adapter_trimming:
+                    outfile.write(repr (self.ssw_aligner)+"\n")
+                    outfile.write(repr (self.trimmer)+"\n")
+            else:
+                outfile.write("\nNo Fastq Filtering done\n")
+                
+            # bwa alignment options
+            outfile.write("\n################## BWA ALIGNMENT ##################\n\n")
+            outfile.write("index file : {}\n".format(self.bwa_index))
+            outfile.write("bwa index options: {}\n".format(self.bwa_index_opt))
+            outfile.write("bwa mem option: {}\n".format(self.bwa_mem_opt))
+            
+            # Output Options
+            outfile.write("\n################## OUTPUT ##################\n\n")
+            outfile.write("Minimal MAPQ score : {}\n".format(self.min_mapq))
+            outfile.write("Write garbage reads to sam: {}\n".format(str(self.unmapped_sam)))
+            outfile.write("Write garbage reads to bam: {}\n".format(str(self.unmapped_bam)))
+            outfile.write("Minimal depth for Coverage output : {}\n".format(self.cov_min_depth))
+            outfile.write("Minimal depth for Variant output : {}\n".format(self.var_min_depth))
+            outfile.write("Minimal Variant frequency : {}\n".format(self.var_min_freq))
 
 #~~~~~~~TOP LEVEL INSTRUCTIONS~~~~~~~#
 if __name__ == '__main__':

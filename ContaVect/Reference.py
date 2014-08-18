@@ -18,7 +18,7 @@ class Reference(object):
     #~~~~~~~CLASS FIELDS~~~~~~~#
 
     Instances = [] # Class field used for instance tracking
-    id_count = 0
+    id_count = 1
 
     #~~~~~~~CLASS METHODS~~~~~~~#
 
@@ -66,6 +66,13 @@ class Reference(object):
     def printInstances (self):
         for ref in self.Instances:
             print (repr(ref))
+            
+    @ classmethod
+    def reprInstances (self):
+        msg = ""
+        for ref in self.Instances:
+            msg+= repr(ref)+"\n"
+        return msg
 
     @ classmethod
     def resetInstances (self):
@@ -133,10 +140,11 @@ class Reference(object):
         msg = "REFERENCE {}".format(self.id)
         msg+= "\tName: {}\n".format(self.name)
         msg+= "\tFasta_path: {}\n".format(self.ref_fasta)
-        msg+= "\tTotal reference length: {}\n".format(sum([seq.length for seq in self.seq_dict.values()]))
-        msg+= "\tSequence list:\n"
-        for seq in self.seq_dict.values():
-            msg+= "\t* {}".format(repr(seq))
+        msg+= "\tTotal reference length: {}\n".format(len(self))
+        msg+= "\tNumber of sequences: {}\n".format(len(self.seq_dict))
+        #msg+= "\tSequence list:\n"
+        #for seq in self.seq_dict.values():
+        #    msg+= "\t* {}".format(repr(seq))
 
         for i in [self.bam_maker, self.cov_maker, self.var_maker]:
             msg+= repr(i)

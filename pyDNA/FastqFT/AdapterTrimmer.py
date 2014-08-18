@@ -56,8 +56,8 @@ class AdapterTrimmer(object):
         msg += "  List of adapters imported for trimming\n"
 
         for a in self.adapter_list:
-            msg += "  id: {}\tSequence: {}\tMin score: {}\tMin len: {}\tCount: {}\n".format(
-                a['id'], a['seq'], a['min_score'], a['min_len'], a['count'])
+            msg += "  id: {}\tSequence: {}\tMin score: {}\tMin len: {}\n".format(
+                a['id'], a['seq'], a['min_score'], a['min_len'])
 
         if self.run:
             msg += "  Sequences untrimmed : {}\n".format(self.seq_untrimmed)

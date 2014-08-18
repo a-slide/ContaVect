@@ -152,6 +152,9 @@ class FastqFilter(object):
 
     def getCTypeVal(self, key):
         return self.__dict__[key].value
+    
+    def getTrimmed (self):
+        return (self.R1_out, self.R2_out)
 
     def set(self, key, value):
         self.__dict__[key] = value
@@ -292,11 +295,6 @@ class FastqFilter(object):
 
         out_R1.close()
         out_R2.close()
-
-    #~~~~~~~GETTERS METHODS~~~~~~~#
-
-    def getTrimmed (self):
-        return (self.R1_out, self.R2_out)
 
 # Required by multiprocessing
 if __name__ == '__main__':

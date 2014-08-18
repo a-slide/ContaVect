@@ -71,7 +71,7 @@ class Aligner(object):
     #~~~~~~~FONDAMENTAL METHODS~~~~~~~#
 
     def __repr__(self):
-        msg = self.__str__()
+        msg = "SSW WRAPPER\n"
         msg += "SCORE PARAMETERS:\n"
         msg += " Gap Weight     Open: {}     Extension: {}\n".format(-self.gap_open, -self.gap_extend)
         msg += " Align Weight   Match: {}    Mismatch: {}\n\n".format(self.match, -self.mismatch)
@@ -85,12 +85,12 @@ class Aligner(object):
         msg += "RESULT PARAMETERS:\n"
         msg += " Report cigar           {}\n".format(self.report_cigar)
         msg += " Report secondary match {}\n\n".format(self.report_secondary)
-        msg += "REFERENCE SEQUENCE :\n"
-        if self.ref_len <= 50:
-            msg += "".join([self.int_to_base[i] for i in self.ref_seq])+"\n"
-        else:
-            msg += "".join([self.int_to_base[self.ref_seq[i]] for i in range(50)])+"...\n"
-        msg += " Lenght :{} nucleotides\n".format(self.ref_len)
+        #msg += "REFERENCE SEQUENCE :\n"
+        #if self.ref_len <= 50:
+            #msg += "".join([self.int_to_base[i] for i in self.ref_seq])+"\n"
+        #else:
+            #msg += "".join([self.int_to_base[self.ref_seq[i]] for i in range(50)])+"...\n"
+        #msg += " Lenght :{} nucleotides\n".format(self.ref_len)
         return msg
 
     def __str__(self):

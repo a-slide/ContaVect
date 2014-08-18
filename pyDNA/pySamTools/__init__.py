@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 """
 @package    pySamTools
-@brief      Allow manipulation of Sam files though pysam
+@brief      **pySamTools ** is a collection of python classes dedicated to of Aligned reads manipulation though pysam package
 @copyright  [GNU General Public License v2](http://www.gnu.org/licenses/gpl-2.0.html)
 @author     Adrien Leger - 2014
 * <adrien.leger@gmail.com>

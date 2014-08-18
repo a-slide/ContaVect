@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 @package    ContaVect
 @brief      Contains specific sources required to run Contavect NGS data analysing pipeline

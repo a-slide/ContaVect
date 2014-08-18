@@ -75,7 +75,7 @@ name : AAV
 
 #   Path to the reference fasta file that can contain multiple sequences.
 #   Can be gzipped (string)
-fasta : ./test/references/AAV-RSV-GFP.fa.gz
+fasta : ./demo/references/AAV-RSV-GFP.fa.gz
 
 #   List of output required for the reference separated by any blank space. See above
 #   for valid values (list of strings)
@@ -83,22 +83,22 @@ output : bam	sam	bedgraph	bed	covgraph	variant
 
 [Ref2]
 name : Backbone
-fasta : ./test/references/Bacterial_backbone.fa.gz
+fasta : ./demo/references/Bacterial_backbone.fa.gz
 output : bam	sam	bedgraph	bed	covgraph	variant
 
 [Ref3]
 name : Helper 
-fasta : ./test/references/Helper_plasmid.fa.gz
+fasta : ./demo/references/Helper_plasmid.fa.gz
 output : bam	sam	bedgraph	bed	covgraph	variant
 
 [Ref4]
 name : Ad5
-fasta : ./test/references/Ad5_in_293_genome.fa.gz
+fasta : ./demo/references/Ad5_in_293_genome.fa.gz
 output : bam	bedgraph
 
 [Ref5]
 name : human_genome
-fasta : ./test/references/HG_GRCh38_chr22.fa.gz
+fasta : ./demo/references/HG_GRCh38_chr22.fa.gz
 output : bam	bedgraph	
 
 #####################
@@ -111,9 +111,9 @@ output : bam	bedgraph
 [Fastq]
 
 # Path to the file containing the forward reads (string)
-R1 : ./test/fastq/10k_AAV_R1.fastq.gz
+R1 : ./demo/fastq/10k_AAV_R1.fastq.gz
 # Path to the file containing the reverse reads (string)
-R2 : ./test/fastq/10k_AAV_R2.fastq.gz
+R2 : ./demo/fastq/10k_AAV_R2.fastq.gz
 
 #################################################
 #    REFERENCE MASKING OPTIONS (FACULTATIVE)    #

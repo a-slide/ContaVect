@@ -1,15 +1,17 @@
+# -*- coding: utf-8 -*-
 """
 @package Bwa
 @brief **Wrapper for BWA mem**
 Please see the BWA user manual document for further details
 [MANUAL](http://bio-bwa.sourceforge.net/bwa.shtml)
-* To use the wrapper, it is first needed to generate a bwa index either by using NewIndex if no
-index was already created or ExistingIndex if an index is already available.
-* A instance of Aligner from MemWrapper can then be created by passing the index object as an argument.
-* The Aligner method align can finally be used as many times as desired with different queries.
-It will returned each time a path to a sam file
+Basically the top level function Mem.align processes sequences as follow:
 
-Alternatively the Mem module can be called to facilitate the usage of the wrapper.
+* If a bwa index is provided it will attempt to validate it by creating and IndexWrapper.ExistingIndex object.
+* If the validation fails of if no index was provided a new index will be created by using IndexWrapper.ExistingIndex from a reference fasta file
+(or a list a fasta files that will be combined in a single reference)
+* A instance of MemWrapper.Aligner is then created by passing the Index object as an argument.
+* A single or a pair of fastq files are then aligned against the reference through MemWrapper.Aligner
+* Finally, results are piped into a sam file
 
 @copyright [GNU General Public License v2](http://www.gnu.org/licenses/gpl-2.0.html)
 @author Adrien Leger - 2014
