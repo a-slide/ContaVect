@@ -16,7 +16,7 @@
 # IMPORTS
 try:
     # Standard library packages import
-    from os import path
+    from os import path, remove
     from time import time
     import ConfigParser
     from sys import argv
@@ -182,12 +182,6 @@ class Main(object):
         """
         stime = time()
         self.outdir = mkdir(path.abspath(self.outdir))
-        self.ref_dir = mkdir(path.join(self.outdir, "references/"))
-        self.db_dir = mkdir(path.join(self.outdir, "blast_db/"))
-        self.fastq_dir = mkdir(path.join(self.outdir, "fastq/"))
-        self.align_dir = mkdir(path.join(self.outdir, "bwa_align/"))
-        self.index_dir = mkdir(path.join(self.outdir, "bwa_index/"))
-        self.result_dir = mkdir(path.join(self.outdir, "results/"))
 
         print ("\n##### PARSE REFERENCES #####\n")
         # Create CV_Reference.Reference object for each reference easily accessible through
@@ -197,6 +191,7 @@ class Main(object):
         # Reference Masking
         if self.ref_masking:
             print ("\n##### REFERENCE HOMOLOGIES MASKING #####\n")
+            self.db_dir = mkdir(path.join(self.outdir, "blast_db/"))
             ref_list = self._iterative_masker()
             # Erase existing index value if ref masking was performed
             bwa_index = None
@@ -204,11 +199,19 @@ class Main(object):
         # Fastq Filtering
         if self.quality_filtering or self.adapter_trimming:
             print ("\n##### FASTQ FILTERING #####\n")
+            self.fastq_dir = mkdir(path.join(self.outdir, "fastq/"))
             self.R1, self.R2 = self._fastq_filter()
 
         # BWA alignment
         print ("\n##### READ REFERENCES AND ALIGN WITH BWA #####\n")
         # An index will be generated if no index was provided
+        self.result_dir = mkdir(path.join(self.outdir, "results/"))
+        
+        if self.ref_masking or not self.bwa_index:
+            self.index_dir = mkdir(path.join(self.outdir, "bwa_index/"))
+        else:
+            self.index_dir = ""
+        
         self.sam = Mem.align (
             self.R1, self.R2,
             index = self.bwa_index,
@@ -217,7 +220,7 @@ class Main(object):
             index_opt = self.bwa_index_opt,
             aligner = self.bwa_aligner,
             indexer = self.bwa_indexer,
-            align_outdir = self.align_dir,
+            align_outdir = self.result_dir,
             index_outdir = self.index_dir,
             align_outname = self.outprefix+".sam",
             index_outname = self.outprefix+".idx")
@@ -251,6 +254,7 @@ class Main(object):
             # Expand fasta if needed
             if self.ref_masking or not self.bwa_index:
                 print ("Expand fasta file for to accelerate reading")
+                self.ref_dir = mkdir(path.join(self.outdir, "references/")) #### TODO TRANSFERT SMARTLY TO MAIN
                 ref_fasta = expand_file(fp=ref['fasta'], outdir=self.ref_dir, copy_ungz=False)
             else:
                 ref_fasta = ref['fasta']
@@ -350,7 +354,8 @@ class Main(object):
             self.fFilter.get('exec_time')))
 
         # Write a detailed report in a logfile
-        with open (self.fastq_dir+"FastqFilter_report.txt", "wb") as outfile:
+        output = "{}{}_FastqFilter_report.txt".format(self.fastq_dir, self.outprefix)
+        with open (output, "wb") as outfile:
             outfile.write(repr(self.fFilter))
 
         return self.fFilter.getTrimmed()
@@ -358,32 +363,36 @@ class Main(object):
     def _sam_spliter (self):
         """
         """
-        samfile = pysam.Samfile(self.sam, "r" )
-        self.bam_header = samfile.header
+        with pysam.Samfile(self.sam, "r" ) as samfile:
+            self.bam_header = samfile.header
 
-        # Give the header of the sam file to all Reference.Instances to respect the same order
-        # references in sorted bam files
-        Reference.set_global("bam_header", self.bam_header)
+            # Give the header of the sam file to all Reference.Instances to respect the same order
+            # references in sorted bam files
+            Reference.set_global("bam_header", self.bam_header)
 
-        # Create a dict to collect unmapped and low quality reads
-        Secondary = Sequence (name = 'Secondary', length = 0)
-        Unmapped = Sequence (name = 'Unmapped', length = 0)
-        LowMapq = Sequence (name = 'LowMapq', length = 0)
-        self.garbage_read = [Secondary, Unmapped, LowMapq]
+            # Create a dict to collect unmapped and low quality reads
+            Secondary = Sequence (name = 'Secondary', length = 0)
+            Unmapped = Sequence (name = 'Unmapped', length = 0)
+            LowMapq = Sequence (name = 'LowMapq', length = 0)
+            self.garbage_read = [Secondary, Unmapped, LowMapq]
 
-        for read in samfile:
-            # Always remove secondary alignments
-            if read.is_secondary:
-                Secondary.add_read(read)
-            # Filter Unmapped reads
-            elif read.tid == -1:
-                Unmapped.add_read(read)
-            # Filter Low MAPQ reads
-            elif read.mapq < self.min_mapq:
-                LowMapq.add_read(read)
-            # Finally if all is fine attribute the read to a Reference
-            else:
-                Reference.addRead(samfile.getrname(read.tid), read)
+            for read in samfile:
+                # Always remove secondary alignments
+                if read.is_secondary:
+                    Secondary.add_read(read)
+                # Filter Unmapped reads
+                elif read.tid == -1:
+                    Unmapped.add_read(read)
+                # Filter Low MAPQ reads
+                elif read.mapq < self.min_mapq:
+                    LowMapq.add_read(read)
+                # Finally if all is fine attribute the read to a Reference
+                else:
+                    Reference.addRead(samfile.getrname(read.tid), read)
+        
+        # Removing the original sam file which is no longer needed
+        remove(self.sam)
+        self.sam = None
 
     def _garbage_output (self):
         """

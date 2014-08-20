@@ -42,7 +42,7 @@ class NewIndex(object):
         # Creating object variables
         self.indexer = bwa_index
         self.index_path = index_path
-        self.index_opt = "{} -a {} -p {}".format (index_opt, "bwtsw", self.index_path)
+        self.index_opt = "{} -p {}".format (index_opt, self.index_path)
 
         try:
             # If only one ref = use it directly to make an index

@@ -65,7 +65,7 @@ class Aligner(object):
         # Execute bwa mem (Can raise a SystemError) and verify if stdout is not None
         print ("Align against {} index with bwa mem".format(file_basename (self.Index.index_path)))
         stderr_list = run_command(cmd, stdin=None, ret_stderr=True, ret_stdout=False).split("\n")
-
+	
         # In bwa stderr return a report of alignment just print the most important one
         print(stderr_list[0])
         print("\n".join(stderr_list[-4:]))

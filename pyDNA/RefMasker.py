@@ -89,7 +89,7 @@ def mask (  subject_fasta,
 
                     # For all position between start and end coordinates modify the base by N
                     for position in range (hit.s_start, hit.s_end+1):
-                        record.seq[position]= 'N'
+                        record.seq[position]= 'n'
         else:
             j+=1
             #~print ("No hit found in {}".format(record.id))
