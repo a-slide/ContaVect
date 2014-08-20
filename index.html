@@ -31,8 +31,6 @@
           <h1>
 <a name="contavect" class="anchor" href="#contavect"><span class="octicon octicon-link"></span></a>ContaVect</h1>
 
-<h1></h1>
-
 <h2>
 <a name="motivation" class="anchor" href="#motivation"><span class="octicon octicon-link"></span></a>Motivation</h2>
 
@@ -41,8 +39,36 @@
 <h2>
 <a name="principle" class="anchor" href="#principle"><span class="octicon octicon-link"></span></a>Principle</h2>
 
+<p>Contavect is composed of several modules piped together to analyse NGS Data.</p>
+
 <h3>
-<a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies:</h3>
+<a name="reference" class="anchor" href="#reference"><span class="octicon octicon-link"></span></a>Reference</h3>
+
+<p>...</p>
+
+<h3>
+<a name="refmasker" class="anchor" href="#refmasker"><span class="octicon octicon-link"></span></a>Refmasker</h3>
+
+<p>To avoid conflict with similarities between reference it is possible to indicate that references homologies needs to be hard masked. To to so
+...</p>
+
+<h3>
+<a name="fastqfilter" class="anchor" href="#fastqfilter"><span class="octicon octicon-link"></span></a>FastqFilter</h3>
+
+<p>...</p>
+
+<h3>
+<a name="bwa-wrapper" class="anchor" href="#bwa-wrapper"><span class="octicon octicon-link"></span></a>Bwa wrapper</h3>
+
+<p>...</p>
+
+<h3>
+<a name="bam-coverage-and-variant-makers" class="anchor" href="#bam-coverage-and-variant-makers"><span class="octicon octicon-link"></span></a>BAM, Coverage and Variant Makers</h3>
+
+<p>...</p>
+
+<h2>
+<a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies:</h2>
 
 <p>The programm was developed under Linux Mint 16/17 and require a python 2.7 environment.
 The following dependencies are required for proper program excecution:</p>
@@ -65,8 +91,8 @@ The following dependencies are required for proper program excecution:</p>
 </pre></div>
 
 <ol>
-<li>Make the main script excecutable</li>
-</ol><div class="highlight highlight-bash"><pre><span class="nv">$ </span>sudo chmod u+x IsFinder.py
+<li>Enter the root of the program folder and make the main script excecutable</li>
+</ol><div class="highlight highlight-bash"><pre><span class="nv">$ </span>sudo chmod u+x ContaVect.py
 </pre></div>
 
 <p>3.Compile the ssw aligner (and add the dynamic library it to the path)</p>
@@ -83,16 +109,16 @@ library and update the cache by using /sbin/ldconfig as root</p>
 
 <p>Prepare the configuration file to include your files and settings as indicated in the template Conf.txt file provided with the source files</p>
 
-<div class="highlight highlight-bash"><pre><span class="nv">$ </span>./ContaVect.py Conf.txt......
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span>./ContaVect.py Conf.txt 
 </pre></div>
+
+<p>No command line option available, everything is in the Configuration file</p>
 
 <h2>
 <a name="pipeline-development-logbook" class="anchor" href="#pipeline-development-logbook"><span class="octicon octicon-link"></span></a>Pipeline development logbook</h2>
 
-<p>TO BE INCLUDED</p>
-
 <ul>
-<li><a href="">Logbook</a></li>
+<li><a href="http://nbviewer.ipython.org/github/a-slide/ContaVect/blob/master/doc/Logbook.ipynb">Logbook</a></li>
 </ul><h2>
 <a name="authors-and-contact" class="anchor" href="#authors-and-contact"><span class="octicon octicon-link"></span></a>Authors and Contact</h2>
 
