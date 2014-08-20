@@ -1,13 +1,29 @@
 #ContaVect
-=========
 
 ## Motivation
 Contavect was developped to quantify and caracterize DNA contaminants from gene therapy vector production after NGS sequencing. This automated pipeline can however be used for wider pourpose requiring to identify map NGS datasets consisting of a mix of DNA sequences on multiple references. It combine several features such as reference homologies masking, fastq filtering/adapter trimming, short read alignments, SAM file splitting and generating human readable output.
 
 ##Principle
 
+Contavect is composed of several modules piped together to analyse NGS Data.
 
-### Dependencies:
+### Reference
+...
+
+### Refmasker
+To avoid conflict with similarities between reference it is possible to indicate that references homologies needs to be hard masked. To to so
+...
+
+### FastqFilter
+...
+
+### Bwa wrapper
+...
+
+### BAM, Coverage and Variant Makers
+...
+
+## Dependencies:
 
 The programm was developed under Linux Mint 16/17 and require a python 2.7 environment.
 The following dependencies are required for proper program excecution:
@@ -28,9 +44,9 @@ In addtion 2 third party python packages are also needed
 $ git clone https://github.com/a-slide/ContaVect/ my_folder/
 ```
 
-2. Make the main script excecutable
+2. Enter the root of the program folder and make the main script excecutable
 ``` bash
-$ sudo chmod u+x IsFinder.py
+$ sudo chmod u+x ContaVect.py
 ```
 
 3.Compile the ssw aligner (and add the dynamic library it to the path)
@@ -47,12 +63,12 @@ library and update the cache by using /sbin/ldconfig as root
 Prepare the configuration file to include your files and settings as indicated in the template Conf.txt file provided with the source files
 
 ``` bash
-$ ./ContaVect.py Conf.txt......
+$ ./ContaVect.py Conf.txt 
 ```
+No command line option available, everything is in the Configuration file
 
 ## Pipeline development logbook
-TO BE INCLUDED
-* [Logbook]()
+* [Logbook](http://nbviewer.ipython.org/github/a-slide/ContaVect/blob/master/doc/Logbook.ipynb)
 
 ## Authors and Contact
 
