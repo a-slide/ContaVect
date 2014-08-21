@@ -12,4 +12,4 @@ Sources from pyDNA are  also needed for proper program execution.
 * [Atlantic Gene Therapies - INSERM 1089] (http://www.atlantic-gene-therapies.fr/)
 """
 __all__ = ["Reference", "Utilities", "Blast", "Bwa", "FastqFT", "pySamTools", "Ssw", "RefMasker"]
-__version__ = 1.0
+__version__ = 0.1
