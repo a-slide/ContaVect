@@ -32,7 +32,7 @@ In addtion 2 third party python packages are also needed
 * [Biopython](https://github.com/biopython/biopython)
 * [pysam](https://github.com/pysam-developers/pysam)
 
-## Get IsFinder
+## Get ContaVect
 
 1. Clone the repository
 ``` bash
@@ -62,8 +62,11 @@ $ ./ContaVect.py Conf.txt
 ```
 No command line option available, everything is in the Configuration file
 
-## Pipeline development logbook
-* [Logbook](http://nbviewer.ipython.org/github/a-slide/ContaVect/blob/master/doc/Logbook.ipynb)
+## Development notebook
+
+* use ipython notebook with doc/Logbook.ipynb
+OR
+* Consult directly online through nbviewer : [Notbook](http://nbviewer.ipython.org/github/a-slide/ContaVect/blob/master/doc/Logbook.ipynb)
 
 ## Authors and Contact
 
