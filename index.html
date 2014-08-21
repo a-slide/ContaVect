@@ -1,34 +1,44 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
-
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
     <title>Contavect by a-slide</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
   </head>
-
   <body>
-    <header>
-      <div class="inner">
-        <h1>Contavect</h1>
-        <h2>Analyse DNA contaminants from NGS data</h2>
-        <a href="https://github.com/a-slide/ContaVect" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/a-slide/ContaVect">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/a-slide/ContaVect/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/a-slide/ContaVect/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Contavect</h1>
+          <p>Analyse DNA contaminants from NGS data</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/a-slide">a-slide</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
 <a name="contavect" class="anchor" href="#contavect"><span class="octicon octicon-link"></span></a>ContaVect</h1>
 
 <h2>
@@ -39,33 +49,18 @@
 <h2>
 <a name="principle" class="anchor" href="#principle"><span class="octicon octicon-link"></span></a>Principle</h2>
 
-<p>Contavect is composed of several modules piped together to analyse NGS Data.</p>
+<p>Contavect a python pipeline composed of several modules linked together to analyse NGS Data. Here is a description of the overall workflow principle :</p>
 
-<h3>
-<a name="reference" class="anchor" href="#reference"><span class="octicon octicon-link"></span></a>Reference</h3>
-
-<p>...</p>
-
-<h3>
-<a name="refmasker" class="anchor" href="#refmasker"><span class="octicon octicon-link"></span></a>Refmasker</h3>
-
-<p>To avoid conflict with similarities between reference it is possible to indicate that references homologies needs to be hard masked. To to so
-...</p>
-
-<h3>
-<a name="fastqfilter" class="anchor" href="#fastqfilter"><span class="octicon octicon-link"></span></a>FastqFilter</h3>
-
-<p>...</p>
-
-<h3>
-<a name="bwa-wrapper" class="anchor" href="#bwa-wrapper"><span class="octicon octicon-link"></span></a>Bwa wrapper</h3>
-
-<p>...</p>
-
-<h3>
-<a name="bam-coverage-and-variant-makers" class="anchor" href="#bam-coverage-and-variant-makers"><span class="octicon octicon-link"></span></a>BAM, Coverage and Variant Makers</h3>
-
-<p>...</p>
+<ul>
+<li>Each reference fasta file is parsed to identify all sequences within it and a Reference object is initialised to save the reference characteristics, the name and the output required.</li>
+<li>Facultative: Homologies between references can be masked iteratively, starting by the last reference which is masked by all the others then to the penultimate masked by all others except the last and and so forth until there is only 1 reference remaining. This is done using blastn from blast+ package</li>
+<li>Facultative: Fastq can be filtered by mean quality and adapters can be trimmed using an homemade fully integrated fastq filter parallel procecing module written in python and C.</li>
+<li>If needed an index for bwa will be generated from the modified reference files or from the original one after being merged together in a temporary directory.</li>
+<li>Fastq sequences are then aligned against the bwa merged reference genome index and a temporary sam file is generated</li>
+<li>Aligned reads from the sam file are splited and attributed to the reference Object for which a hit was found. or to one of the following garbage reads categories: unmapped, lowMapq, secondary.</li>
+<li>Each reference will then generates the output required in the configuration file (Bam, sam, bedgraph, bed, covgraph and/or variant report).</li>
+<li>Finally a distribution report and a log file are generated </li>
+</ul><p>For more information, a comprehensive developper documentation can be generated from ContaVect.dox using <a href="https://github.com/doxygen/doxygen">Doxygen</a> with <a href="https://github.com/0xCAFEBABE/doxypy">doxypy</a>.</p>
 
 <h2>
 <a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies:</h2>
@@ -131,25 +126,10 @@ library and update the cache by using /sbin/ldconfig as root</p>
 <li><a href="https://github.com/a-slide">Github</a></li>
 <li><a href="http://www.atlantic-gene-therapies.fr/">Atlantic Gene Therapies - INSERM 1089</a></li>
 </ul>
-        </section>
+      </section>
 
-        <aside id="sidebar">
-          <a href="https://github.com/a-slide/ContaVect/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/a-slide/ContaVect/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/a-slide/ContaVect"></a> is maintained by <a href="https://github.com/a-slide">a-slide</a>.</p>
-
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
     </div>
-
-  
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
   </body>
 </html>
