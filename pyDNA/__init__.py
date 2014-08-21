@@ -19,4 +19,4 @@ For now it includes BWA, Blast and Smith–Waterman wrappers as well as higher l
 """
 
 __all__ = ["Utilities", "Blast", "Bwa", "FastqFT", "pySamTools", "Ssw", "RefMasker"]
-__version__ = 1.0
+__version__ = 0.1
