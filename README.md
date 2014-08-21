@@ -64,9 +64,9 @@ No command line option available, everything is in the Configuration file
 
 ## Development notebook
 
-* use ipython notebook with doc/Logbook.ipynb
-OR
-* Consult directly online through nbviewer : [Notbook](http://nbviewer.ipython.org/github/a-slide/ContaVect/blob/master/doc/Logbook.ipynb)
+2 possibilities:
+* Use ipython notebook with doc/Logbook.ipynb
+* Consult directly online through nbviewer : [Notebook](http://nbviewer.ipython.org/github/a-slide/ContaVect/blob/master/doc/Logbook.ipynb)
 
 ## Authors and Contact
 
