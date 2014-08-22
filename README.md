@@ -7,14 +7,16 @@ Contavect was developped to quantify and caracterize DNA contaminants from gene 
 
 Contavect a python pipeline composed of several modules linked together to analyse NGS Data. Here is a description of the overall workflow principle :
 
-* Each reference fasta file is parsed to identify all sequences within it and a Reference object is initialised to save the reference characteristics, the name and the output required.
-* Facultative: Homologies between references can be masked iteratively, starting by the last reference which is masked by all the others then to the penultimate masked by all others except the last and and so forth until there is only 1 reference remaining. This is done using blastn from blast+ package
-* Facultative: Fastq can be filtered by mean quality and adapters can be trimmed using an homemade fully integrated fastq filter parallel procecing module written in python and C.
-* If needed an index for bwa will be generated from the modified reference files or from the original one after being merged together in a temporary directory.
-* Fastq sequences are then aligned against the bwa merged reference genome index and a temporary sam file is generated
-* Aligned reads from the sam file are splited and attributed to the reference Object for which a hit was found. or to one of the following garbage reads categories: unmapped, lowMapq, secondary.
-* Each reference will then generates the output required in the configuration file (Bam, sam, bedgraph, bed, covgraph and/or variant report).
-* Finally a distribution report and a log file are generated 
+1. Each reference fasta file is parsed to identify all sequences within it and a Reference object is initialised to save the reference characteristics, the name and the output required.
+2. Facultative: Homologies between references can be masked iteratively, starting by the last reference which is masked by all the others then to the penultimate masked by all others except the last and and so forth until there is only 1 reference remaining. This is done using blastn from blast+ package
+3. Facultative: Fastq can be filtered by mean quality and adapters can be trimmed using an homemade fully integrated fastq filter parallel procecing module written in python and C.
+4. If needed an index for bwa will be generated from the modified reference files or from the original one after being merged together in a temporary directory. Then Fastq sequences are then aligned against the bwa merged reference genome index and a temporary sam file is generated
+5. Aligned reads from the sam file are splited and attributed to the reference Object for which a hit was found. or to one of the following garbage reads categories: unmapped, lowMapq, secondary.
+6. Each reference will then generates the output required in the configuration file (Bam, sam, bedgraph, bed, covgraph and/or variant report).
+7. Finally distribution reports and a log file are generated 
+
+![""](./doc/img/ContaVectDesign.png)
+
 
 For more information, a comprehensive developper documentation can be generated from ContaVect.dox using [Doxygen](https://github.com/doxygen/doxygen) with [doxypy](https://github.com/0xCAFEBABE/doxypy).
 
