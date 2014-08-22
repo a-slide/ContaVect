@@ -3,6 +3,7 @@
 # Standard library packages import
 import gzip
 from sys import stdout
+from collections import OrderedDict
 
 # Third party packages import
 from Bio import SeqIO
@@ -199,8 +200,9 @@ class Reference(object):
         except Exception as E:
             fp.close()
             raise Exception (E.message+"Can not create a list of sequence from{}".format(self.name))
-
-        seq_dict={}
+        
+        # Create a dict that remenbered the order of items added
+        seq_dict=OrderedDict()
         for seq in SeqIO.parse(fp, "fasta"):
             # verify the absence of the sequence name in the current list and in other ref seq_dict
             if seq.id in self.allSeqList():

@@ -13,30 +13,32 @@
 * [Atlantic Gene Therapies - INSERM 1089] (http://www.atlantic-gene-therapies.fr/)
 """
 
+# TODO Raise flag if a facultative package is not properly imported
+    
 # IMPORTS
 try:
     # Standard library packages import
-    from os import path, remove
-    from time import time
-    import ConfigParser
-    from sys import argv
-    import csv
+    from os import path, remove # Mandatory package
+    from time import time # Mandatory package
+    import ConfigParser # Mandatory package
+    from sys import argv # Mandatory package
+    import csv # Mandatory package
 
     # Third party packages
-    import pysam
-    import Bio
+    import pysam # Mandatory package
+    import Bio # Mandatory package
 
     # Local Package import
-    from pyDNA.Utilities import mkdir, file_basename, file_name, expand_file, rm_blank
-    from pyDNA.Blast import Blastn
-    from pyDNA.RefMasker import mask
-    from pyDNA.FastqFT.FastqFilter import FastqFilter
-    from pyDNA.FastqFT.QualityFilter import QualityFilter
-    from pyDNA.FastqFT.AdapterTrimmer import AdapterTrimmer
-    from pyDNA.Ssw import ssw_wrap
-    from pyDNA.Bwa import Mem
-    from pyDNA.pySamTools import Bam, Coverage, Variant
-    from ContaVect.Reference import Reference, Sequence
+    from pyDNA.Utilities import mkdir, file_basename, file_name, expand_file, rm_blank # Mandatory package
+    from pyDNA.Blast import Blastn # if not imported = not ref masking
+    from pyDNA.RefMasker import mask # if not imported = not ref masking
+    from pyDNA.FastqFT.FastqFilter import FastqFilter # if not imported = not fasta filter
+    from pyDNA.FastqFT.QualityFilter import QualityFilter # if not imported = not fasta filter
+    from pyDNA.FastqFT.AdapterTrimmer import AdapterTrimmer # if not imported = not fasta filter
+    from pyDNA.Ssw import ssw_wrap # if not imported = not fasta filter
+    from pyDNA.Bwa import Mem # Mandatory package
+    from pyDNA.pySamTools import Bam, Coverage, Variant # if not imported = not requested output
+    from ContaVect.Reference import Reference, Sequence # Mandatory package
 
 except ImportError as E:
     print (E)
@@ -60,7 +62,9 @@ class Main(object):
         Parse command line argument and configuration file, then verify a limited number of
         critical values.
         """
-
+        
+        # TODO manage import flags define dafault values and verify file existence
+        
         # CL ARGUMENTS AND CONF FILE PARSING
 
         if len(argv) != 2:
@@ -147,7 +151,6 @@ class Main(object):
             print ("One of the value in the configuration file is not in the correct format")
             print ("Please report to the descriptions in the configuration file\n")
             exit()
-    # TODO verify if files are valid and numeric value not negative
 
     def __repr__(self):
         msg = "MAIN CLASS\n"
@@ -417,27 +420,26 @@ class Main(object):
     def _distribution_output (self):
         """
         """
-        output = "{}{}_Ref_distribution.csv".format(self.result_dir, self.outprefix)
+        output = "{}{}_Reference_distribution.csv".format(self.result_dir, self.outprefix)
         with open(output, 'wb') as csvfile:
             writer = csv.writer(csvfile, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
-
             # Table for all reference
-            writer.writerow(["RESULTS PER REFERENCE "])
             writer.writerow(["Ref name","length","nread","RPKB"])
             for ref in Reference.getInstances():
                 writer.writerow([ref.name, len(ref), ref.nread, float(ref.nread)/len(ref)*1000])
-            # Add a line for garbage reads
-            nread = sum([seq.nread for seq in self.garbage_read])
-            writer.writerow(["Garbage_Reads","NA",nread,"NA"])
-            writer.writerow([""])
-            
+            # Add a line for garbage reads excluding the secondary alignments
+            nread = sum([seq.nread for seq in self.garbage_read[1:]])
+            writer.writerow(["Unmaped_and LowMapq","NA",nread,"NA"])
+
+        output = "{}{}_Sequence_distribution.csv".format(self.result_dir, self.outprefix)
+        with open(output, 'wb') as csvfile:
+            writer = csv.writer(csvfile, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
             # Table decomposing Sequence per Reference
-            writer.writerow(["RESULTS PER SEQUENCE "])
             writer.writerow(["Seq name","length","nread","RPKB"])
             for ref in Reference.getInstances():
                 for seq in ref.seq_dict.values():
                     writer.writerow([seq.name, len(seq), seq.nread, float(seq.nread)/len(seq)*1000])
-            # Add a lines for garbage reads
+            # Add a lines for garbage reads including the secondary alignments
             for seq in self.garbage_read:
                 writer.writerow([seq.name, "NA", seq.nread, "NA"])
                 
