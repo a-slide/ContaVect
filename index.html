@@ -44,30 +44,30 @@
 <h2>
 <a name="motivation" class="anchor" href="#motivation"><span class="octicon octicon-link"></span></a>Motivation</h2>
 
-<p>Contavect was developped to quantify and caracterize DNA contaminants from gene therapy vector production after NGS sequencing. This automated pipeline can however be used for wider pourpose requiring to identify map NGS datasets consisting of a mix of DNA sequences on multiple references. It combine several features such as reference homologies masking, fastq filtering/adapter trimming, short read alignments, SAM file splitting and generating human readable output.</p>
+<p>Contavect was developed to quantify and characterize DNA contaminants from gene therapy vector production after NGS sequencing. This automated pipeline can however be used for wider purpose requiring to identify map NGS datasets consisting of a mix of DNA sequences on multiple references. It combine several features such as reference homologies masking, fastq filtering/adapter trimming, short read alignments, SAM file splitting and generating human readable output.</p>
 
 <h2>
 <a name="principle" class="anchor" href="#principle"><span class="octicon octicon-link"></span></a>Principle</h2>
 
-<p>Contavect a python pipeline composed of several modules linked together to analyse NGS Data. Here is a description of the overall workflow principle :</p>
+<p>Contavect a python pipeline composed of several modules linked together to analyze NGS Data. Here is a description of the overall workflow principle :</p>
 
 <ol>
-<li>Each reference fasta file is parsed to identify all sequences within it and a Reference object is initialised to save the reference characteristics, the name and the output required.</li>
+<li>Each reference fasta file is parsed to identify all sequences within it and a Reference object is initialized to save the reference characteristics, the name and the output required.</li>
 <li>Facultative: Homologies between references can be masked iteratively, starting by the last reference which is masked by all the others then to the penultimate masked by all others except the last and and so forth until there is only 1 reference remaining. This is done using blastn from blast+ package</li>
-<li>Facultative: Fastq can be filtered by mean quality and adapters can be trimmed using an homemade fully integrated fastq filter parallel procecing module written in python and C.</li>
+<li>Facultative: Fastq can be filtered by mean quality and adapters can be trimmed using an homemade fully integrated fastq filter parallel processing module written in python and C.</li>
 <li>If needed an index for bwa will be generated from the modified reference files or from the original one after being merged together in a temporary directory. Then Fastq sequences are then aligned against the bwa merged reference genome index and a temporary sam file is generated</li>
-<li>Aligned reads from the sam file are splited and attributed to the reference Object for which a hit was found. or to one of the following garbage reads categories: unmapped, lowMapq, secondary.</li>
+<li>Aligned reads from the sam file are spitted and attributed to the reference Object for which a hit was found. or to one of the following garbage reads categories: unmaped, lowMapq, secondary.</li>
 <li>Each reference will then generates the output required in the configuration file (Bam, sam, bedgraph, bed, covgraph and/or variant report).</li>
 <li>Finally distribution reports and a log file are generated </li>
 </ol><p><img src="./doc/img/ContaVectDesign.png" alt='"See ContaVect Design"'></p>
 
-<p>For more information, a comprehensive developper documentation can be generated from ContaVect.dox using <a href="https://github.com/doxygen/doxygen">Doxygen</a> with <a href="https://github.com/0xCAFEBABE/doxypy">doxypy</a>.</p>
+<p>For more information, a comprehensive developer documentation can be generated from ContaVect.dox using <a href="https://github.com/doxygen/doxygen">Doxygen</a> with <a href="https://github.com/0xCAFEBABE/doxypy">doxypy</a>.</p>
 
 <h2>
 <a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies:</h2>
 
-<p>The programm was developed under Linux Mint 16/17 and require a python 2.7 environment.
-The following dependencies are required for proper program excecution:</p>
+<p>The program was developed under Linux Mint 16/17 and require a python 2.7 environment.
+The following dependencies are required for proper program execution:</p>
 
 <ul>
 <li><a href="https://github.com/lh3/bwa">bwa 0.7.0+</a></li>
@@ -87,13 +87,13 @@ The following dependencies are required for proper program excecution:</p>
 </pre></div>
 
 <ol>
-<li>Enter the root of the program folder and make the main script excecutable</li>
+<li>Enter the root of the program folder and make the main script executable</li>
 </ol><div class="highlight highlight-bash"><pre><span class="nv">$ </span>sudo chmod u+x ContaVect.py
 </pre></div>
 
 <p>3.Compile the ssw aligner (and add the dynamic library it to the path)</p>
 
-<p>If you wish to perform a step of adapter trimming before mapping you need to complile the dynamic library ssw.so to be able to use the Smith watermann algorithm forked from mengyao's <a href="https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library">Complete-Striped-Smith-Waterman-Library</a></p>
+<p>If you wish to perform a step of adapter trimming before mapping you need to complile the dynamic library ssw.so to be able to use the Smith Waterman algorithm forked from mengyao's <a href="https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library">Complete-Striped-Smith-Waterman-Library</a></p>
 
 <p>To use the dynamic library libssw.so you may need to modify the LD_LIBRARY_PATH environment
 variable to include the library directory (export LD_LIBRARY_PATH=$PWD) or for definitive
