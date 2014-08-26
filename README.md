@@ -1,5 +1,7 @@
 #ContaVect
 
+[see GitHub Page](http://a-slide.github.io/ContaVect) 
+
 ## Motivation
 Contavect was developed to quantify and characterize DNA contaminants from gene therapy vector production after NGS sequencing. This automated pipeline can however be used for wider purpose requiring to identify map NGS datasets consisting of a mix of DNA sequences on multiple references. It combine several features such as reference homologies masking, fastq filtering/adapter trimming, short read alignments, SAM file splitting and generating human readable output.
 
