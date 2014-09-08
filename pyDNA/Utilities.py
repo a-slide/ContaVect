@@ -427,7 +427,7 @@ def count_seq (filename, seq_type="fasta"):
 def DNA_reverse_comp (sequence, AmbiguousBase=True):
     """
     Generate the reverese complementary sequence of a given DNA sequence
-    @param
+    @param sequence DNA sequence
     """
     if AmbiguousBase:
         compl = {'A':'T','T':'A','G':'C','C':'G','Y':'R','R':'Y','S':'S','W':'W','K':'M','M':'K',
@@ -443,6 +443,62 @@ def DNA_reverse_comp (sequence, AmbiguousBase=True):
             compl_sequence += 'N'
 
     return compl_sequence[::-1]
+
+
+def gb_to_bed(gb_file, track_description="User Supplied Track", features_type = []):
+    """
+    write a bed file containing annotations from a gb file 
+    @param gb_file path to a gb file containing a single molecule
+    @param track_description Line of text descitpion for the bed track (60 char max)
+    @param feature_type Restrict to the list of feature indicated 
+    """
+    # Specific imports
+    from Bio import SeqIO
+    from unicodedata import normalize
+    
+    # open in and out files
+    with open (gb_file, "rb") as gb:
+        outf = file_basename(gb_file)+".bed"
+        with open(outf, 'w') as bed:
+            
+            # parse record
+            record = SeqIO.read( gb, "genbank")
+            print ("{} features to be parsed\n".format(len(record.features)))
+            
+            # write bed header
+            bed.write("""track name={} description="{}" visibility=2 colorByStrand="255,0,0 0,0,255"\n""".format(
+                record.id,
+                track_description))
+                
+            for feature in record.features:
+                
+                # if specific deatures are required
+                if features_type and feature.type not in features_type:                
+                    continue
+                
+                start = feature.location.start.position
+                stop = feature.location.end.position
+                strand = '-' if feature.strand < 0 else '+'
+                
+                # try several alternative key for feature name else skip the feature 
+                if 'gene' in feature.qualifiers:
+                    name = feature.qualifiers['gene'][0]
+                elif 'locus_tag' in feature.qualifiers:
+                    name = feature.qualifiers['locus_tag'][0]
+                elif 'label' in feature.qualifiers:
+                    name = feature.qualifiers['label'][0]
+                else:
+                    continue
+                    
+                # Normalize name to asci
+                name = str(name.decode('ascii', 'ignore'))
+                bed.write("{0}\t{1}\t{2}\t{3}\t1000\t{4}\t\n".format(
+                    record.id,
+                    start,
+                    stop,
+                    name,
+                    strand))
+    return outf
 
 
 #~~~~~~~GRAPHICAL UTILIES~~~~~~~#

@@ -66,7 +66,17 @@ class CoverageMaker (object):
         self.__dict__[key] = value
 
     #~~~~~~~PUBLIC METHODS~~~~~~~#
-
+    
+    def __call__ (self, bam_path, bai_path, outpath="./out", ref_name = "ref"):
+        """
+        @param bam_path Path to the bam file that will be used for coverage extraction
+        @param bai_path Path to the bam index file. I won't be used but it's existence is
+        required by pileup
+        @param outpath Basename of the path where to output files
+        @param ref_name Name of the reference genome containing the sequence listed in the bam file
+        """
+        self.make(bam_path, bai_path, outpath, ref_name)
+    
     def make (self, bam_path, bai_path, outpath="./out", ref_name = "ref"):
         """
         @param bam_path Path to the bam file that will be used for coverage extraction
@@ -104,7 +114,8 @@ class CoverageMaker (object):
         # Open a handle on the to read the bam file and another to write the bedgraph
         with pysam.Samfile(bam_path, "rb") as bamfile:
             with open (bedgraph, "wb") as outfile:
-
+            
+            # TODO NAME SHOULD INCLUDE USER PREFIX 
             # Write bedGraph header
                 outfile.write ("track type=bedGraph name={} color=0,0,0\n".format(ref_name))
 

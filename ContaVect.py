@@ -256,7 +256,7 @@ class Main(object):
         for ref in self.raw_ref_list:
             # Expand fasta if needed
             if self.ref_masking or not self.bwa_index:
-                print ("Expand fasta file for to accelerate reading")
+                print ("Expand fasta file to accelerate reading")
                 self.ref_dir = mkdir(path.join(self.outdir, "references/")) #### TODO TRANSFERT SMARTLY TO MAIN
                 ref_fasta = expand_file(fp=ref['fasta'], outdir=self.ref_dir, copy_ungz=False)
             else:
