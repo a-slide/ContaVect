@@ -79,27 +79,22 @@ fasta : ./demo/references/AAV-RSV-GFP.fa.gz
 
 #   List of output required for the reference separated by any blank space. See above
 #   for valid values (list of strings)
-output : bam	sam	bedgraph	bed	covgraph	variant
+output : bam	sam	bedgraph	bed	covgraph
 
 [Ref2]
 name : Backbone
 fasta : ./demo/references/Bacterial_backbone.fa.gz
-output : bam	sam	bedgraph	bed	covgraph	variant
+output : bam	sam	bedgraph	bed	covgraph
 
 [Ref3]
 name : Helper 
 fasta : ./demo/references/Helper_plasmid.fa.gz
-output : bam	sam	bedgraph	bed	covgraph	variant
+output : bam	sam	bedgraph	bed	covgraph
 
 [Ref4]
 name : Ad5
 fasta : ./demo/references/Ad5_in_293_genome.fa.gz
 output : bam	bedgraph
-
-[Ref5]
-name : human_genome
-fasta : ./demo/references/HG_GRCh38_chr22.fa.gz
-output : bam	bedgraph	
 
 #####################
 #    FASTQ FILES    #

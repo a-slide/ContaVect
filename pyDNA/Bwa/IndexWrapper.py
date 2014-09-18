@@ -49,6 +49,12 @@ class NewIndex(object):
             if isinstance(ref, str):
                 self.ref = ref
                 self._make_index()
+
+            # If list at one element = same thing
+            elif isinstance(ref, list) and len(ref) == 1:
+                self.ref = ref[0]
+                self._make_index()
+
             # If severel references, merged them, make index and remove the merged reference file
             elif isinstance(ref, list):
                 print("Merge references files for indexation")
@@ -76,7 +82,7 @@ class NewIndex(object):
         # Run the command line without stdin and asking both stdout and stderr
         start_time = time()
         stderr = run_command(cmd, stdin=None, ret_stderr=True, ret_stdout=False)
-        
+
         print (stderr)
         print ("Index created in {}s\n".format(round(time()-start_time, 3)))
 
