@@ -64,7 +64,7 @@ Prepare the configuration file to include your files and settings as indicated i
 ``` bash
 $ ./ContaVect.py Conf.txt 
 ```
-No command line option available, everything is in the Configuration file
+No command line option is available, everything is in the Configuration file
 
 ## Development notebook
 
