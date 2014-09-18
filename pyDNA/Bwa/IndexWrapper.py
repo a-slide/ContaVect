@@ -75,13 +75,9 @@ class NewIndex(object):
 
         # Run the command line without stdin and asking both stdout and stderr
         start_time = time()
-        stdout, stderr = run_command(cmd, None, True, True)
-
-        # Verify the output
-        if not stdout:
-            raise Exception ("Error, no data received from standard output\n"+stderr)
-
-        print (stdout)
+        stderr = run_command(cmd, stdin=None, ret_stderr=True, ret_stdout=False)
+        
+        print (stderr)
         print ("Index created in {}s\n".format(round(time()-start_time, 3)))
 
     def _remove_index_files(self):
