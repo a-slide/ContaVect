@@ -58,9 +58,9 @@ class NewIndex(object):
             # If severel references, merged them, make index and remove the merged reference file
             elif isinstance(ref, list):
                 print("Merge references files for indexation")
-                self.ref = merge_files(ref, outpath=self.index_path, compress_output=False)
+                self.ref = merge_files(ref, outpath="./out.fa", compress_output=False)
                 self._make_index()
-                remove (self.index_path)
+                remove ("./out.fa")
             else:
                 raise TypeError, "ref variable is neither a list nor a string"
 

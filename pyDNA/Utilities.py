@@ -83,6 +83,13 @@ def make_cmd_str(prog_name, opt_dict={}, opt_list=[]):
 
 #~~~~~~~FILE MANIPULATION~~~~~~~#
 
+def is_gziped (fp):
+    """
+    @param fp path to a files eventually gzipped
+    @return True is ended by gz extension else false
+    """
+    return fp[-2:].lower() == "gz"
+
 def copyFile(src, dest):
     """
     Copy a single file to a destination file or folder (with error handling/reporting)
@@ -169,59 +176,26 @@ def fgunzip(in_path, out_path=None):
             except OSError:
                 print "Can't remove {}".format(out_path)
 
-def expand_file (fp, outdir="./", copy_ungz=False):
+def expand_file (infile, outdir="./"):
     """
-    Iterate over a list of files and expand files in outdir if the files are gzipped
+    expand file in outdir if the file are gzipped
     Else the file won't be modified and won't be moved from it's current directory
-    @param fp Path to a file eventually gzipped
+    @param infile Path to a file eventually gzipped
     @param outdir Path of the directory in which to uncompress or copy the files
-    @param copy_ungz Copy uncompressed file in the outdir without modification
     @return A path to an uncompressed file
     """
     # Function specific imports
-    from os import path, link
-    from shutil import copy
+    from os import path
 
-    assert path.isfile(fp), "{} is not a valid file".format(fp)
+    assert path.isfile(infile), "{} is not a valid file".format(infile)
 
     # Extract if gziped
-    if fp[-2:].lower() == "gz":
-        out_path = path.join (outdir, file_name(fp)[:-3])
-        fgunzip (fp, out_path)
-
-    # Copy to the outdir if requested
-    elif copy_ungz :
-        out_path = path.join (outdir, file_name(fp))
-        # try to create a hard link else just recopy
-        try:
-            link(fp, out_path)
-        except Exception:
-            print ('link failed')
-            copyFile(fp, outdir)
+    if is_gziped(infile):
+        return fgunzip (in_path=infile, out_path=path.join(outdir,file_name(infile)[:-3]))
+    
+    # else just return the original file path
     else:
-        out_path = file_name(fp)
-
-    return path.abspath(out_path)
-
-def expand_filelist (file_list, outdir="./", copy_ungz=False):
-    """
-    Iterate over a list of files and expand files in outdir if the files are gzipped
-    Else the file won't be modified and won't be moved from it's current directory
-    @param file_list List of path to files eventually gzipped
-    @param outdir Path of the directory in which to uncompress the gziped files
-    @param copy_ungz Copy uncompressed file in the outdir without modification
-    @return A list of path to uncompressed files including the name of original files that do not
-    needed to be uncompressed.
-    """
-    # Function specific imports
-    from os import path, link
-    from shutil import copy
-
-    new_file_list = []
-
-    for fp in file_list:
-        new_file_list.append(expand_file(fp, outdir, copy_ungz))
-    return new_file_list
+        return infile
 
 def mkdir(fp):
     """
@@ -267,7 +241,7 @@ def merge_files (inpath_list, outpath="out", compress_output=True, bufsize = 100
         for inpath in inpath_list:
 
             # Open according to the compression
-            openin = gzip.open if file_extension(inpath) == "gz" else open
+            openin = gzip.open if is_gziped(inpath) else open
             with openin (inpath, "rb") as in_handle:
                 stdout.write("\t+ {}  ".format(file_name(inpath)))
                 stdout.flush()
@@ -362,7 +336,7 @@ def import_seq(filename, col_type="dict", seq_type="fasta"):
         assert col_type  in allowed_types, "The output collection type have to be in the following list : "+ ", ".join(allowed_types)
 
         # Open gzipped or uncompressed file
-        if file_extension(filename) == "gz":
+        if is_gziped(filename):
             #print("\tUncompressing and extracting data")
             handle = gzip.open(filename, "r")
         else:
@@ -401,7 +375,7 @@ def count_seq (filename, seq_type="fasta"):
     assert seq_type in ["fasta", "fastq"], "The file has to be either fastq or fasta format"
 
     # Open the file
-    if file_extension(filename) == "gz":
+    if is_gziped(filename):
         fp = gzip.open(filename, "rb")
     else:
         fp = open(filename, "rb")

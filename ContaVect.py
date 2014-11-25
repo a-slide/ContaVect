@@ -29,7 +29,7 @@ try:
     import Bio # Mandatory package
 
     # Local Package import
-    from pyDNA.Utilities import mkdir, file_basename, file_name, expand_file, rm_blank # Mandatory package
+    from pyDNA.Utilities import mkdir, file_basename, file_name, expand_file, rm_blank, is_gziped # Mandatory package
     from pyDNA.Blast import Blastn # if not imported = not ref masking
     from pyDNA.RefMasker import mask # if not imported = not ref masking
     from pyDNA.FastqFT.FastqFilter import FastqFilter # if not imported = not fasta filter
@@ -170,7 +170,7 @@ class Main(object):
 
     #~~~~~~~PUBLIC METHODS~~~~~~~#
 
-    def run(self):
+    def __call__(self):
         """
         Launch the complete pipeline of analyse:
 
@@ -189,7 +189,15 @@ class Main(object):
         print ("\n##### PARSE REFERENCES #####\n")
         # Create CV_Reference.Reference object for each reference easily accessible through
         # Reference class methods
-        self._extract_ref()
+        
+        if self.ref_masking or not self.bwa_index:
+            self.ref_dir = mkdir(path.join(self.outdir, "references/"))
+            self.index_dir = mkdir(path.join(self.outdir, "bwa_index/"))
+            self._extract_ref(expand=True)
+        else:
+            self.ref_dir = ""
+            self.index_dir = ""
+            self._extract_ref(expand=False)
 
         # Reference Masking
         if self.ref_masking:
@@ -209,11 +217,6 @@ class Main(object):
         print ("\n##### READ REFERENCES AND ALIGN WITH BWA #####\n")
         # An index will be generated if no index was provided
         self.result_dir = mkdir(path.join(self.outdir, "results/"))
-        
-        if self.ref_masking or not self.bwa_index:
-            self.index_dir = mkdir(path.join(self.outdir, "bwa_index/"))
-        else:
-            self.index_dir = ""
         
         self.sam = Mem.align (
             self.R1, self.R2,
@@ -246,19 +249,16 @@ class Main(object):
 
     ##~~~~~~~PRIVATE METHODS~~~~~~~#
 
-    def _extract_ref(self):
+    def _extract_ref(self, expand=True):
         """
         Import and expand fasta references and associated flags in a Reference object
         expand the file if Gziped to avoid multiple compression/decompression during execution
         if require for next operations
         """
-
         for ref in self.raw_ref_list:
             # Expand fasta if needed
-            if self.ref_masking or not self.bwa_index:
-                print ("Expand fasta file to accelerate reading")
-                self.ref_dir = mkdir(path.join(self.outdir, "references/")) #### TODO TRANSFERT SMARTLY TO MAIN
-                ref_fasta = expand_file(fp=ref['fasta'], outdir=self.ref_dir, copy_ungz=False)
+            if expand:
+                ref_fasta = expand_file(infile=ref['fasta'], outdir=self.ref_dir)
             else:
                 ref_fasta = ref['fasta']
             
@@ -495,4 +495,4 @@ class Main(object):
 if __name__ == '__main__':
 
     main = Main()
-    main.run()
+    main()
