@@ -209,7 +209,6 @@ class Reference(object):
                 raise Exception ("{} is duplicated\n".format(seq.id))
             else:
                 seq_dict[seq.id] = Sequence(name=seq.id, length=len(seq))
-
             stdout.write("*")
             stdout.flush()
 

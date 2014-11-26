@@ -60,7 +60,7 @@ class NewIndex(object):
                 print("Merge references files for indexation")
                 self.ref = merge_files(ref, outpath="./out.fa", compress_output=False)
                 self._make_index()
-                remove ("./out.fa")
+                #remove ("./out.fa")
             else:
                 raise TypeError, "ref variable is neither a list nor a string"
 

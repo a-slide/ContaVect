@@ -198,7 +198,7 @@ class Main(object):
             self.ref_dir = ""
             self.index_dir = ""
             self._extract_ref(expand=False)
-
+        
         # Reference Masking
         if self.ref_masking:
             print ("\n##### REFERENCE HOMOLOGIES MASKING #####\n")
@@ -278,6 +278,12 @@ class Main(object):
                     min_depth=self.var_min_depth,
                     min_freq=self.var_min_freq,
                     make_freqvar = 'variant' in ref['output']))
+            
+            ## Test if all seq in ref are longer than 3000 for compatibility with bwa 
+            #for seq in Ref.seq_dict.values():
+                #if seq.length < 3000:
+                    #import_and_pad (
+        
             print (repr(Ref))
 
     def _iterative_masker (self): #### TODO The fuction directly manipulate reference field= change that
@@ -304,7 +310,7 @@ class Main(object):
                 db_outname = subject.name)
 
             # Masking hits in suject fasta if hits in hit_list
-            subject.fasta_path = mask (
+            subject.ref_fasta = mask (
                 subject_fasta= subject.ref_fasta,
                 hit_list = hit_list,
                 ref_outdir = self.ref_dir,
