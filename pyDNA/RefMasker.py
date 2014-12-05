@@ -88,7 +88,7 @@ def mask (  subject_fasta,
                 if record.id == hit.s_id:
 
                     # For all position between start and end coordinates modify the base by N
-                    for position in range (hit.s_start, hit.s_end+1):
+                    for position in range (hit.s_start, hit.s_end):
                         record.seq[position]= 'n'
         else:
             j+=1
