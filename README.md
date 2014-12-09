@@ -38,9 +38,9 @@ In addtion 2 third party python packages are also needed
 
 ## Get ContaVect
 
-1. Clone the repository
+1. Clone the repository with --recursive option to also pull the submodule
 ``` bash
-$ git clone https://github.com/a-slide/ContaVect/ my_folder/
+$ git clone --recursive https://github.com/a-slide/ContaVect/ my_folder/
 ```
 
 2. Enter the root of the program folder and make the main script executable
