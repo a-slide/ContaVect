@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@package    ContaVect
+@package    ContaVect_src
 @brief      Contains specific sources required to run Contavect NGS data analysing pipeline
 Sources from pyDNA are  also needed for proper program execution.
 @copyright  [GNU General Public License v2](http://www.gnu.org/licenses/gpl-2.0.html)
