@@ -29,15 +29,15 @@ try:
     import Bio # Mandatory package
 
     # Local Package import
-    from pyDNA2.Utilities import mkdir, file_basename, file_name, expand_file, rm_blank, is_gziped # Mandatory package
-    from pyDNA2.Blast import Blastn # if not imported = not ref masking
-    from pyDNA2.RefMasker import mask # if not imported = not ref masking
-    from pyDNA2.FastqFT.FastqFilter import FastqFilter # if not imported = not fasta filter
-    from pyDNA2.FastqFT.QualityFilter import QualityFilter # if not imported = not fasta filter
-    from pyDNA2.FastqFT.AdapterTrimmer import AdapterTrimmer # if not imported = not fasta filter
-    from pyDNA2.Ssw import ssw_wrap # if not imported = not fasta filter
-    from pyDNA2.Bwa import Mem # Mandatory package
-    from pyDNA2.pySamTools import Bam, Coverage, Variant # if not imported = not requested output
+    from pyDNA.Utilities import mkdir, file_basename, file_name, expand_file, rm_blank, is_gziped # Mandatory package
+    from pyDNA.Blast import Blastn # if not imported = not ref masking
+    from pyDNA.RefMasker import mask # if not imported = not ref masking
+    from pyDNA.FastqFT.FastqFilter import FastqFilter # if not imported = not fasta filter
+    from pyDNA.FastqFT.QualityFilter import QualityFilter # if not imported = not fasta filter
+    from pyDNA.FastqFT.AdapterTrimmer import AdapterTrimmer # if not imported = not fasta filter
+    from pyDNA.Ssw import ssw_wrap # if not imported = not fasta filter
+    from pyDNA.Bwa import Mem # Mandatory package
+    from pyDNA.pySamTools import Bam, Coverage, Variant # if not imported = not requested output
     from ContaVect_src.Reference import Reference, Sequence # Mandatory package
 
 except ImportError as E:
