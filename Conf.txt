@@ -220,6 +220,9 @@ bwa_indexer : bwa index
 #   This value correspond to the minimal quality mapping of a read to be considered valid (Positive Integer)
 min_mapq : 30
 
+#   This value correspond to the minimal size of mapping (Positive integer)
+min_size : 25
+
 #   If True Garbage reads (unmapped, low mapq and secondary) will be written in bam files (Boolean)
 unmapped_bam = True
 
