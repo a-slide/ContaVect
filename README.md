@@ -14,7 +14,7 @@ Contavect a python pipeline composed of several modules linked together to analy
 3. Facultative: Fastq can be filtered by mean quality and adapters can be trimmed using an homemade fully integrated fastq filter parallel processing module written in python and C.
 4. If needed an index for bwa will be generated from the modified reference files or from the original one after being merged together in a temporary directory. Then Fastq sequences are then aligned against the bwa merged reference genome index and a temporary sam file is generated
 5. Aligned reads from the sam file are spitted and attributed to the reference Object for which a hit was found. or to one of the following garbage reads categories: unmaped, lowMapq, secondary.
-6. Each reference will then generates the output required in the configuration file (Bam, sam, bedgraph, bed, covgraph and/or variant report).
+6. Each reference will then generates the output required in the configuration file (Bam, sam, bedgraph, bed and covgraph).
 7. Finally distribution reports and a log file are generated 
 
 !["See ContaVect Design"](./doc/img/ContaVectDesign.png)
