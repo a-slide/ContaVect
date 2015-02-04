@@ -3,7 +3,7 @@
 [see GitHub Page](http://a-slide.github.io/ContaVect) 
 
 ## Motivation
-Contavect was developed to quantify and characterize DNA contaminants from gene therapy vector production after NGS sequencing. This automated pipeline can however be used for wider purpose requiring to identify map NGS datasets consisting of a mix of DNA sequences on multiple references. It combine several features such as reference homologies masking, fastq filtering/adapter trimming, short read alignments, SAM file splitting and generating human readable output.
+Contavect is a **python2.7** object oriented script, developed to quantify and characterize DNA contaminants from gene therapy vector production after NGS sequencing. This automated pipeline can however be used for wider purpose requiring to identify map NGS datasets consisting of a mix of DNA sequences on multiple references. It combine several features such as reference homologies masking, fastq filtering/adapter trimming, short read alignments, SAM file splitting and generating human readable output.
 
 ##Principle
 
@@ -14,7 +14,7 @@ Contavect a python pipeline composed of several modules linked together to analy
 3. Facultative: Fastq can be filtered by mean quality and adapters can be trimmed using an homemade fully integrated fastq filter parallel processing module written in python and C.
 4. If needed an index for bwa will be generated from the modified reference files or from the original one after being merged together in a temporary directory. Then Fastq sequences are then aligned against the bwa merged reference genome index and a temporary sam file is generated
 5. Aligned reads from the sam file are spitted and attributed to the reference Object for which a hit was found. or to one of the following garbage reads categories: unmaped, lowMapq, secondary.
-6. Each reference will then generates the output required in the configuration file (Bam, sam, bedgraph, bed, covgraph and/or variant report).
+6. Each reference will then generates the output required in the configuration file (Bam, sam, bedgraph, bed and covgraph).
 7. Finally distribution reports and a log file are generated 
 
 !["See ContaVect Design"](./doc/img/ContaVectDesign.png)
@@ -34,13 +34,18 @@ The following dependencies are required for proper program execution:
 In addtion 2 third party python packages are also needed 
 
 * [Biopython](https://github.com/biopython/biopython)
-* [pysam](https://github.com/pysam-developers/pysam)
+* [pysam](https://github.com/pysam-developers/pysam) 0.8.0+
+
+If you have pip already installed, enter the following line to install pysam:
+```bash
+sudo pip install pysam
+```
 
 ## Get ContaVect
 
-1. Clone the repository
+1. Clone the repository with --recursive option to also pull the submodule
 ``` bash
-$ git clone https://github.com/a-slide/ContaVect/ my_folder/
+$ git clone --recursive https://github.com/a-slide/ContaVect/ my_folder/
 ```
 
 2. Enter the root of the program folder and make the main script executable

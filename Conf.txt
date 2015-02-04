@@ -45,7 +45,7 @@ outprefix : AAV-100k_chr11-22
 #   are defined by a name, a path to a fasta file that can contain multiple sequences, 
 #   and finally a list of output files for this reference. To be properly interpreted
 #   Items in the list needs to be choose among :'bam', 'sam', 'bedgraph', 'bed',
-#   'covgraph', 'variant'.
+#   'covgraph'.
 
 #   BAM and SAM correspond to the standard BAM/SAM format. They will be sorted and with
 #   a bam index. BAM is much more compact than SAM but not human readeable.
@@ -58,10 +58,6 @@ outprefix : AAV-100k_chr11-22
 #   COVGRAPH is a graphical representation of the coverage as a svg file and should be
 #   used only for small sized reference (> 50 000 pb). If selected the program will
 #   generate a graphics per sequence mapped in the reference fasta file.
-
-#   VARIANT will output a csv table containing the positions in the reference for which
-#   at least 2 different frequent bases were found. It is a slow and memory comsumming
-#   algorithm that should be used only if really required
 
 #   It is possible to include as many independant reference as required by duplicating
 #   a entire Ref section and updating the id number (Ref1, Ref2, Ref3 ... ). The order
@@ -219,6 +215,9 @@ bwa_indexer : bwa index
 
 #   This value correspond to the minimal quality mapping of a read to be considered valid (Positive Integer)
 min_mapq : 30
+
+#   This value correspond to the minimal size of mapping (Positive integer)
+min_size : 25
 
 #   If True Garbage reads (unmapped, low mapq and secondary) will be written in bam files (Boolean)
 unmapped_bam = True

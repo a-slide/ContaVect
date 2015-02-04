@@ -38,7 +38,7 @@ try:
     from pyDNA.Ssw import ssw_wrap # if not imported = not fasta filter
     from pyDNA.Bwa import Mem # Mandatory package
     from pyDNA.pySamTools import Bam, Coverage, Variant # if not imported = not requested output
-    from ContaVect.Reference import Reference, Sequence # Mandatory package
+    from ContaVect_src.Reference import Reference, Sequence # Mandatory package
 
 except ImportError as E:
     print (E)
@@ -99,6 +99,7 @@ class Main(object):
             self.bwa_aligner = self.conf.get("Bwa_Alignment", "bwa_aligner")
             self.bwa_indexer = self.conf.get("Bwa_Alignment", "bwa_indexer")
             self.min_mapq = self.conf.getint("Output", "min_mapq")
+            self.min_size = self.conf.getint("Output", "min_size")
             self.unmapped_bam = self.conf.getboolean("Output", "unmapped_bam")
             self.unmapped_sam = self.conf.getboolean("Output", "unmapped_sam")
             self.cov_min_depth = self.conf.getint("Output", "cov_min_depth")
@@ -395,6 +396,9 @@ class Main(object):
                 # Filter Low MAPQ reads
                 elif read.mapq < self.min_mapq:
                     LowMapq.add_read(read)
+                # Filter short map ##### FOR FUTURE CREATE A SEPARATE CATEGORY
+                elif len(read.query_alignment_sequence) < self.min_size:
+                    Unmapped.add_read(read)    
                 # Finally if all is fine attribute the read to a Reference
                 else:
                     Reference.addRead(samfile.getrname(read.tid), read)
