@@ -33,7 +33,7 @@ The following dependencies are required for proper program execution:
 
 In addtion 2 third party python packages are also needed 
 
-* [Biopython](https://github.com/biopython/biopython)
+* [Biopython](https://github.com/biopython/biopython) 1.60+
 * [pysam](https://github.com/pysam-developers/pysam) 0.8.0+
 
 If you have pip already installed, enter the following line to install pysam:
