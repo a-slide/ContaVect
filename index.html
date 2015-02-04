@@ -1,53 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Contavect by a-slide</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/respond.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" href="stylesheets/ie.css">
-    <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="Contavect : Analyse DNA contaminants from NGS data">
 
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Contavect</title>
   </head>
+
   <body>
-      <div id="header">
-        <nav>
-          <li class="fork"><a href="https://github.com/a-slide/ContaVect">View On GitHub</a></li>
-          <li class="downloads"><a href="https://github.com/a-slide/ContaVect/zipball/master">ZIP</a></li>
-          <li class="downloads"><a href="https://github.com/a-slide/ContaVect/tarball/master">TAR</a></li>
-          <li class="title">DOWNLOADS</li>
-        </nav>
-      </div><!-- end header -->
 
-    <div class="wrapper">
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/a-slide/ContaVect">View on GitHub</a>
 
-      <section>
-        <div id="title">
-          <h1>Contavect</h1>
-          <p>Analyse DNA contaminants from NGS data</p>
-          <hr>
-          <span class="credits left">Project maintained by <a href="https://github.com/a-slide">a-slide</a></span>
-          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
-        </div>
+          <h1 id="project_title">Contavect</h1>
+          <h2 id="project_tagline">Analyse DNA contaminants from NGS data</h2>
 
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/a-slide/ContaVect/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/a-slide/ContaVect/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h1>
-<a name="contavect" class="anchor" href="#contavect"><span class="octicon octicon-link"></span></a>ContaVect</h1>
+<a id="contavect" class="anchor" href="#contavect" aria-hidden="true"><span class="octicon octicon-link"></span></a>ContaVect</h1>
 
 <h2>
-<a name="motivation" class="anchor" href="#motivation"><span class="octicon octicon-link"></span></a>Motivation</h2>
+<a id="motivation" class="anchor" href="#motivation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Motivation</h2>
 
-<p>Contavect was developed to quantify and characterize DNA contaminants from gene therapy vector production after NGS sequencing. This automated pipeline can however be used for wider purpose requiring to identify map NGS datasets consisting of a mix of DNA sequences on multiple references. It combine several features such as reference homologies masking, fastq filtering/adapter trimming, short read alignments, SAM file splitting and generating human readable output.</p>
+<p>Contavect is a <strong>python2.7</strong> object oriented script, developed to quantify and characterize DNA contaminants from gene therapy vector production after NGS sequencing. This automated pipeline can however be used for wider purpose requiring to identify map NGS datasets consisting of a mix of DNA sequences on multiple references. It combine several features such as reference homologies masking, fastq filtering/adapter trimming, short read alignments, SAM file splitting and generating human readable output.</p>
 
 <h2>
-<a name="principle" class="anchor" href="#principle"><span class="octicon octicon-link"></span></a>Principle</h2>
+<a id="principle" class="anchor" href="#principle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Principle</h2>
 
 <p>Contavect a python pipeline composed of several modules linked together to analyze NGS Data. Here is a description of the overall workflow principle :</p>
 
@@ -57,14 +50,16 @@
 <li>Facultative: Fastq can be filtered by mean quality and adapters can be trimmed using an homemade fully integrated fastq filter parallel processing module written in python and C.</li>
 <li>If needed an index for bwa will be generated from the modified reference files or from the original one after being merged together in a temporary directory. Then Fastq sequences are then aligned against the bwa merged reference genome index and a temporary sam file is generated</li>
 <li>Aligned reads from the sam file are spitted and attributed to the reference Object for which a hit was found. or to one of the following garbage reads categories: unmaped, lowMapq, secondary.</li>
-<li>Each reference will then generates the output required in the configuration file (Bam, sam, bedgraph, bed, covgraph and/or variant report).</li>
+<li>Each reference will then generates the output required in the configuration file (Bam, sam, bedgraph, bed and covgraph).</li>
 <li>Finally distribution reports and a log file are generated </li>
-</ol><p><img src="./doc/img/ContaVectDesign.png" alt='"See ContaVect Design"'></p>
+</ol>
+
+<p><img src="https://github.com/a-slide/ContaVect/tree/master/doc/img/ContaVectDesign.png" alt='"See ContaVect Design"'></p>
 
 <p>For more information, a comprehensive developer documentation can be generated from ContaVect.dox using <a href="https://github.com/doxygen/doxygen">Doxygen</a> with <a href="https://github.com/0xCAFEBABE/doxypy">doxypy</a>.</p>
 
 <h2>
-<a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies:</h2>
+<a id="dependencies" class="anchor" href="#dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependencies:</h2>
 
 <p>The program was developed under Linux Mint 16/17 and require a python 2.7 environment.
 The following dependencies are required for proper program execution:</p>
@@ -73,23 +68,35 @@ The following dependencies are required for proper program execution:</p>
 <li><a href="https://github.com/lh3/bwa">bwa 0.7.0+</a></li>
 <li><a href="https://github.com/samtools/samtools">samtools 0.1.17+</a></li>
 <li>blast+ (not required is not no reference masking is to be performed) </li>
-</ul><p>In addtion 2 third party python packages are also needed </p>
+</ul>
+
+<p>In addtion 2 third party python packages are also needed </p>
 
 <ul>
-<li><a href="https://github.com/biopython/biopython">Biopython</a></li>
-<li><a href="https://github.com/pysam-developers/pysam">pysam</a></li>
-</ul><h2>
-<a name="get-contavect" class="anchor" href="#get-contavect"><span class="octicon octicon-link"></span></a>Get ContaVect</h2>
+<li>
+<a href="https://github.com/biopython/biopython">Biopython</a> 1.60+</li>
+<li>
+<a href="https://github.com/pysam-developers/pysam">pysam</a> 0.8.0+</li>
+</ul>
+
+<p>If you have pip already installed, enter the following line to install pysam:</p>
+
+<div class="highlight highlight-bash"><pre>sudo pip install pysam</pre></div>
+
+<h2>
+<a id="get-contavect" class="anchor" href="#get-contavect" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get ContaVect</h2>
 
 <ol>
-<li>Clone the repository</li>
-</ol><div class="highlight highlight-bash"><pre><span class="nv">$ </span>git clone https://github.com/a-slide/ContaVect/ my_folder/
-</pre></div>
+<li>Clone the repository with --recursive option to also pull the submodule</li>
+</ol>
+
+<div class="highlight highlight-bash"><pre>$ git clone --recursive https://github.com/a-slide/ContaVect/ my_folder/</pre></div>
 
 <ol>
 <li>Enter the root of the program folder and make the main script executable</li>
-</ol><div class="highlight highlight-bash"><pre><span class="nv">$ </span>sudo chmod u+x ContaVect.py
-</pre></div>
+</ol>
+
+<div class="highlight highlight-bash"><pre>$ sudo chmod u+x ContaVect.py</pre></div>
 
 <p>3.Compile the ssw aligner (and add the dynamic library it to the path)</p>
 
@@ -101,17 +108,16 @@ inclusion of the lib edit /etc/ld.so.conf and add the path or the directory cont
 library and update the cache by using /sbin/ldconfig as root</p>
 
 <h2>
-<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
 
 <p>Prepare the configuration file to include your files and settings as indicated in the template Conf.txt file provided with the source files</p>
 
-<div class="highlight highlight-bash"><pre><span class="nv">$ </span>./ContaVect.py Conf.txt 
-</pre></div>
+<div class="highlight highlight-bash"><pre>$ ./ContaVect.py Conf.txt </pre></div>
 
-<p>No command line option available, everything is in the Configuration file</p>
+<p>No command line option is available, everything is in the Configuration file</p>
 
 <h2>
-<a name="development-notebook" class="anchor" href="#development-notebook"><span class="octicon octicon-link"></span></a>Development notebook</h2>
+<a id="development-notebook" class="anchor" href="#development-notebook" aria-hidden="true"><span class="octicon octicon-link"></span></a>Development notebook</h2>
 
 <p>2 possibilities:</p>
 
@@ -119,8 +125,10 @@ library and update the cache by using /sbin/ldconfig as root</p>
 <li>Use ipython notebook with doc/Logbook.ipynb</li>
 <li>Consult directly online through nbviewer : <a href="http://nbviewer.ipython.org/github/a-slide/ContaVect/blob/master/doc/Logbook.ipynb">Notebook</a>
 </li>
-</ul><h2>
-<a name="authors-and-contact" class="anchor" href="#authors-and-contact"><span class="octicon octicon-link"></span></a>Authors and Contact</h2>
+</ul>
+
+<h2>
+<a id="authors-and-contact" class="anchor" href="#authors-and-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contact</h2>
 
 <p>Adrien Leger - 2014</p>
 
@@ -132,9 +140,17 @@ library and update the cache by using /sbin/ldconfig as root</p>
 <li><a href="http://www.atlantic-gene-therapies.fr/">Atlantic Gene Therapies - INSERM 1089</a></li>
 </ul>
       </section>
-
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Contavect maintained by <a href="https://github.com/a-slide">a-slide</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
     
+
   </body>
 </html>
