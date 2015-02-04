@@ -17,7 +17,7 @@ Contavect a python pipeline composed of several modules linked together to analy
 6. Each reference will then generates the output required in the configuration file (Bam, sam, bedgraph, bed and covgraph).
 7. Finally distribution reports and a log file are generated 
 
-!["See ContaVect Design"](./doc/img/ContaVectDesign.png)
+![ContaVect Design](https://raw.githubusercontent.com/a-slide/ContaVect/master/doc/img/ContaVectDesign.png)
 
 
 For more information, a comprehensive developer documentation can be generated from ContaVect.dox using [Doxygen](https://github.com/doxygen/doxygen) with [doxypy](https://github.com/0xCAFEBABE/doxypy).
