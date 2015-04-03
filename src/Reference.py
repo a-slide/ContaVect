@@ -1,12 +1,28 @@
-#~~~~~~~GLOBAL IMPORTS~~~~~~~#
+# -*- coding: utf-8 -*-
+
+"""
+@package    ContaVect
+@brief
+@copyright  [GNU General Public License v2](http://www.gnu.org/licenses/gpl-2.0.html)
+@author     Adrien Leger - 2014
+* <adrien.leger@gmail.com>
+* <adrien.leger@inserm.fr>
+* <adrien.leger@univ-nantes.fr>
+* [Github](https://github.com/a-slide)
+* [Atlantic Gene Therapies - INSERM 1089] (http://www.atlantic-gene-therapies.fr/)
+"""
 
 # Standard library packages import
-import gzip
+from gzip import open as gopen
 from sys import stdout
 from collections import OrderedDict
 
 # Third party packages import
 from Bio import SeqIO
+
+# Local Package import
+from pyDNA.FileUtils import is_gziped, is_readable_file
+from Sequence import Sequence
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 class Reference(object):
@@ -57,7 +73,7 @@ class Reference(object):
 
     @ classmethod
     def allFasta (self):
-        return [ref.ref_fasta for ref in self.Instances]
+        return [ref.fasta for ref in self.Instances]
 
     @ classmethod
     def getInstances (self):
@@ -67,7 +83,7 @@ class Reference(object):
     def printInstances (self):
         for ref in self.Instances:
             print (repr(ref))
-            
+
     @ classmethod
     def reprInstances (self):
         msg = ""
@@ -107,24 +123,28 @@ class Reference(object):
 
     #~~~~~~~FONDAMENTAL METHODS~~~~~~~#
 
-    def __init__(self, name, ref_fasta, bam_maker, cov_maker, var_maker):
+    ###### Reference will create a sorted bam and a bai by default
+    ###### For the other output type it will create specific objects
+
+
+    def __init__(self, name, fasta, output_type):
         """
         @param name Name of the reference
-        @param ref_fasta Path to the fasta reference needed to determine sequence name associated
+        @param fasta Path to the fasta reference needed to determine sequence name associated
         with this reference
-        @param bam_maker BamMaker object to create bam sam and bai
-        @param cov_maker CoverageMaker object to create a coverage graph, bedgraph and bed
-        @param var_maker VariantMaker object to create frequent variant report file
+        @param output_type type of output file to generate
         """
 
-        # Store object variables
         print ("Creating reference object {}".format(name))
+
+        # test fasta readability
+        is_readable_file(fasta)
+
+        # Create self variables
         self.name = name
         self.id = self.next_id()
-        self.ref_fasta = ref_fasta
-        self.bam_maker = bam_maker
-        self.cov_maker = cov_maker
-        self.var_maker = var_maker
+        self.fasta = fasta
+        self.output_type = output_type #############################################################################
 
         # Define additional variables
         self.seq_dict = {}
@@ -137,10 +157,10 @@ class Reference(object):
         # Add the instance to the class instance tracking list
         self.Instances.append(self)
 
-    def __repr__(self):
+    def __str__(self):
         msg = "REFERENCE {}".format(self.id)
         msg+= "\tName: {}\n".format(self.name)
-        msg+= "\tFasta_path: {}\n".format(self.ref_fasta)
+        msg+= "\tFasta_path: {}\n".format(self.fasta)
         msg+= "\tTotal reference length: {}\n".format(len(self))
         msg+= "\tNumber of sequences: {}\n".format(len(self.seq_dict))
         #msg+= "\tSequence list:\n"
@@ -154,7 +174,7 @@ class Reference(object):
             msg+= "\tTotal read mapped: {}\n".format(self.nread)
         return (msg)
 
-    def __str__(self):
+    def __repr__(self):
         return "<Instance of {} from {} >\n".format(self.__class__.__name__, self.__module__)
 
     def __len__(self):
@@ -192,15 +212,12 @@ class Reference(object):
 
         # Init a file pointer
         try:
-            if self.ref_fasta[-2:].lower() == "gz":
-                fp = gzip.open(self.ref_fasta,"rb")
-            else:
-                fp = open(self.ref_fasta,"rb")
+            fp = gopen(self.fasta,"rb") if is_gziped(self.fasta) else open(self.fasta,"rb")
 
         except Exception as E:
             fp.close()
             raise Exception (E.message+"Can not create a list of sequence from{}".format(self.name))
-        
+
         # Create a dict that remenbered the order of items added
         seq_dict=OrderedDict()
         for seq in SeqIO.parse(fp, "fasta"):
@@ -216,52 +233,3 @@ class Reference(object):
         fp.close()
 
         return seq_dict
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-class Sequence(object):
-    """
-    @class  Sequence
-    @brief  Object oriented class containing informations of a sequence from a reference file
-    """
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-
-    def __init__(self, name, length):
-        self.name = name
-        self.length = length
-        self.nread = 0
-        self.read_list = []
-
-    def __repr__(self):
-        msg = "{} ({} bp)".format(self.name, self.length)
-        if self.nread:
-            return (msg + "{} read(s)\n".format(self.nread))
-        else:
-            return (msg + "\n")
-
-    def __str__(self):
-        return "<Instance of {} from {} >\n".format(self.__class__.__name__, self.__module__)
-
-    def __len__(self):
-        return self.length
-
-    def get(self, key):
-        return self.__dict__[key]
-
-    def set(self, key, value):
-        self.__dict__[key] = value
-
-
-    #~~~~~~~PUBLIC METHODS~~~~~~~#
-
-    def add_read (self, read):
-        """
-        Add a read to read_list and update the counter
-        """
-        self.read_list.append(read)
-        self.nread+=1
-
-    def sort_read (self):
-        """
-        sort read in read_list according to their leftmost position
-        """
-        self.read_list.sort(key = lambda x: x.pos)

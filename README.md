@@ -71,6 +71,21 @@ $ ./ContaVect.py Conf.txt
 ```
 No command line option is available, everything is in the Configuration file
 
+DESCRIBE OUTPUT FILES
+
+# BAM and SAM correspond to the standard BAM/SAM format. They will be sorted and with
+# a bam index. BAM is much more compact than SAM but not human readeable.
+
+# BEDGRAPH and BED are data recapitulating the coverage of reads over the sequence.
+# bed report the coverage of all positions in the reference while bedgraph is more
+# concise since uncovered regions are not reported and contigous positions of same
+# coverage are reported only once. for large sequences bedgraph only should be used.
+
+# COVGRAPH is a graphical representation of the coverage as a svg file and should be
+# used only for small sized reference (> 50 000 pb). If selected the program will
+# generate a graphics per sequence mapped in the reference fasta file.
+
+
 ## Development notebook
 
 2 possibilities:
