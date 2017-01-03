@@ -71,6 +71,8 @@ $ ./ContaVect.py Conf.txt
 ```
 No command line option is available, everything is in the Configuration file
 
+Export the path to conf/matplotlibrc file as the MATPLOTLIBRC variable for headless cluster runs.
+
 ## Development notebook
 
 2 possibilities:
