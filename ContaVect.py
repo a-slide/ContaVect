@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -95,6 +95,7 @@ class Main(object):
             self.adapter_trimming = self.conf.getboolean("Fastq_Filtering", "adapter_trimming")
             self.bwa_index = rm_blank(self.conf.get("Bwa_Alignment", "bwa_index"), replace="\ ")
             self.bwa_mem_opt = self.conf.get("Bwa_Alignment", "bwa_mem_opt")
+            self.bwa_threads = self.conf.get("Bwa_Alignment", "bwa_threads")
             self.bwa_index_opt = self.conf.get("Bwa_Alignment", "bwa_index_opt")
             self.bwa_aligner = self.conf.get("Bwa_Alignment", "bwa_aligner")
             self.bwa_indexer = self.conf.get("Bwa_Alignment", "bwa_indexer")
@@ -109,6 +110,7 @@ class Main(object):
             # Conditional paramaters
             if self.ref_masking:
                 self.blastn_opt = self.conf.get("Ref_Masking", "blastn_opt")
+                self.blastn_threads = self.conf.get("Ref_Masking", "blastn_threads")
                 self.mkblastdb_opt = self.conf.get("Ref_Masking", "mkblastdb_opt")
                 self.blastn = self.conf.get("Ref_Masking", "blastn")
                 self.mkblastdb = self.conf.get("Ref_Masking", "mkblastdb")
@@ -226,6 +228,7 @@ class Main(object):
             align_opt = self.bwa_mem_opt,
             index_opt = self.bwa_index_opt,
             aligner = self.bwa_aligner,
+            align_threads = self.bwa_threads,
             indexer = self.bwa_indexer,
             align_outdir = self.result_dir,
             index_outdir = self.index_dir,
@@ -306,6 +309,7 @@ class Main(object):
                 query_list = [ref.ref_fasta for ref in query_list],
                 subject_fasta = subject.ref_fasta,
                 align_opt = self.blastn_opt,
+                num_threads = self.blastn_threads,
                 db_opt = self.mkblastdb_opt,
                 db_outdir = self.db_dir,
                 db_outname = subject.name)
@@ -491,6 +495,7 @@ class Main(object):
             outfile.write("index file : {}\n".format(self.bwa_index))
             outfile.write("bwa index options: {}\n".format(self.bwa_index_opt))
             outfile.write("bwa mem option: {}\n".format(self.bwa_mem_opt))
+            outfile.write("bwa threads : {}\n".format(self.bwa_threads))
             
             # Output Options
             outfile.write("\n################## OUTPUT ##################\n\n")
