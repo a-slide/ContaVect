@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 
+"""
+@package    ContaVect
+@brief      Contain the template of the empty configuration file for ContaVect
+@copyright  [GNU General Public License v2](http://www.gnu.org/licenses/gpl-2.0.html)
+@authors     Adrien Leger - 2014 & Mathieu Bolteau - 2018
+* [Github](https://github.com/a-slide)
+* [Github](https://github.com/mablt)
+* INSERM 1089 - University of Nantes
+"""
+
 def write_example_conf (number_reference):
 	counter = 2
 	reference_to_add =""
