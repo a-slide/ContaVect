@@ -23,7 +23,7 @@ try:
 	import ConfigParser # Mandatory package
 	from sys import argv # Mandatory package
 	import csv # Mandatory package
-	import optparse 
+	import optparse #Mandatory package
 
 	# Third party packages
 	import pysam # Mandatory package
@@ -40,7 +40,7 @@ try:
 	from pyDNA.Bwa import Mem # Mandatory package
 	from pyDNA.pySamTools import Bam, Coverage, Variant # if not imported = not requested output
 	from ContaVect_src.Reference import Reference, Sequence # Mandatory package
-	from Conf_file import write_example_conf
+	from Conf_file import write_example_conf #if not  imported = not creation of configuration file
 
 except ImportError as E:
 	print (E)
@@ -67,33 +67,38 @@ class Main(object):
 
 	@classmethod
 	def class_init (self):
+		"""
+        init class method for instantiation from command line. Parse arguments parse CL arguments
+        """
+
+        # Define parser usage, options
 		parser = optparse.OptionParser(usage = self.USAGE, version = self.VERSION)
-		parser.add_option('-i', dest="init_conf", type="int",
-			help="Generate an example configuration file and exit [Facultative]")
+		parser.add_option('-i', dest="number_ref", type="int", 
+			help="Generate an example configuration file with the number of references necessary and exit [Mandatory]")
 		parser.add_option('-c', dest="conf_file",
 			help="Path to the configuration file [Mandatory]")
-		parser.set_defaults(conf_file=1)
+
+		# Parse arguments
 		options, args = parser.parse_args()
-		
-		return Main(options.init_conf, options.conf_file)
+
+		return Main(options.number_ref, options.conf_file)
 
 	#~~~~~~~FONDAMENTAL METHODS~~~~~~~#
 
-	def __init__ (self, init_conf=None, conf_file=None):
+	def __init__ (self, number_ref=None, conf_file=None):
 		"""
 		Parse command line argument and configuration file, then verify a limited number of
 		critical values.
 		"""
 		
-		# TODO manage import flags define dafault values and verify file existence
-		
-		# CL ARGUMENTS AND CONF FILE PARSING
-
-
-		if init_conf:
-			write_example_conf(init_conf)
+		# Create a example conf file if needed with the number of reference necessary
+		if number_ref:
+			print "Create an example configuration file with",number_ref,"references in the current folder"
+			write_example_conf(number_ref)
 			exit()
-
+		
+		# TODO manage import flags define default values and verify file existence
+		# CL ARGUMENTS AND CONF FILE PARSING
 
 		self.conf = ConfigParser.RawConfigParser(allow_no_value=True)
 		self.conf.read(conf_file)
