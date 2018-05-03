@@ -11,7 +11,7 @@
 #   Values can by customized with users values, but the file template must remain
 #   unchanged, otherwise the program will not be able to load default values.
 #   Please follow the following recommendations :
-#   - 
+#   
 #   - File path should be indicated as absolute path preferably and should not contain
 #     blank spaces  
 #   - Values identified with '**' in the descriptor are not recommended to be modified              
@@ -122,6 +122,7 @@ ref_masking : True
 
 # ** Command line options that will be used by blastn for alignment (string) 
 blastn_opt : -evalue 0.1
+blastn_threads : 1
 
 # ** Command line options that will be used by mkblastdb for database creation (string)
 mkblastdb_opt :
@@ -195,6 +196,7 @@ bwa_index :
 
 # ** Command line options that will be used by bwa mem for alignment (string) 
 bwa_mem_opt : -M
+bwa_threads : 1
 
 # ** Command line options that will be used by bwa incdex for reference indexation (string) 
 bwa_index_opt :
