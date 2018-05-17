@@ -23,7 +23,7 @@ try:
 	import ConfigParser # Mandatory package
 	from sys import argv # Mandatory package
 	import csv # Mandatory package
-	import optparse #Mandatory package
+	import optparse # Mandatory package
 
 	# Third party packages
 	import pysam # Mandatory package
@@ -40,7 +40,7 @@ try:
 	from pyDNA.Bwa import Mem # Mandatory package
 	from pyDNA.pySamTools import Bam, Coverage, Variant # if not imported = not requested output
 	from ContaVect_src.Reference import Reference, Sequence # Mandatory package
-	from Conf_file import write_example_conf #if not  imported = not creation of configuration file
+	from Conf_file import write_conf_file #if not  imported = not creation of configuration file
 
 except ImportError as E:
 	print (E)
@@ -60,7 +60,7 @@ class Main(object):
 
 	#~~~~~~~CLASS FIELDS~~~~~~~#
 
-	VERSION = "ContaVect 0.2.1"
+	VERSION = "ContaVect 0.3.0"
 	USAGE = "Usage: %prog -c Conf.txt [-i -h]"
 
 	#~~~~~~~CLASS METHODS~~~~~~~#
@@ -70,11 +70,10 @@ class Main(object):
 		"""
         init class method for instantiation from command line. Parse arguments parse CL arguments
         """
-
         # Define parser usage, options
 		parser = optparse.OptionParser(usage = self.USAGE, version = self.VERSION)
 		parser.add_option('-i', dest="number_ref", type="int", 
-			help="Generate an example configuration file with the number of references necessary and exit [Mandatory]")
+			help="Generate an empty configuration file adapted to the number of reference sequences to align the reads to and exit. [Mandatory]")
 		parser.add_option('-c', dest="conf_file",
 			help="Path to the configuration file [Mandatory]")
 
@@ -90,11 +89,13 @@ class Main(object):
 		Parse command line argument and configuration file, then verify a limited number of
 		critical values.
 		"""
-		
-		# Create a example conf file if needed with the number of reference necessary
+		# Create a empty configuration file if needed with the number of reference necessary
 		if number_ref:
-			print "Create an example configuration file with",number_ref,"references in the current folder"
-			write_example_conf(number_ref)
+			if number_ref > 1:
+				print "Create an empty configuration file with {} references in the current folder.".format(number_ref)
+			else:
+				print "Create an empty configuration file with {} reference in the current folder.".format(number_ref)
+			write_conf_file(number_ref)
 			exit()
 		
 		# TODO manage import flags define default values and verify file existence
@@ -444,7 +445,6 @@ class Main(object):
 		"""
 		Output bam /sam for garbage reads
 		"""
-
 		# Define a generic Bam.BamMaker resulting in unsorted bam/sam for all garbage reads
 		bam_maker = Bam.BamMaker(
 			sort=False,
