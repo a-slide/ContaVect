@@ -1,6 +1,5 @@
 # ContaVect
 
-[see GitHub Page](http://a-slide.github.io/ContaVect) 
 
 ## Motivation
 Contavect is a **python2.7** object oriented script, developed to quantify and characterize DNA contaminants from gene therapy vector production after NGS sequencing. This automated pipeline can however be used for wider purpose requiring to identify map NGS datasets consisting of a mix of DNA sequences on multiple references. It combine several features such as reference homologies masking, fastq filtering/adapter trimming, short read alignments, SAM file splitting and generating human readable output.
@@ -45,7 +44,7 @@ sudo pip install pysam
 
 1. Clone the repository with --recursive option to also pull the submodule
 ``` bash
-$ git clone --recursive https://github.com/a-slide/ContaVect/ my_folder/
+$ git clone --recursive https://github.com/emlec/ContaVect/ my_folder/
 ```
 
 2. Enter the root of the program folder and make the main script executable

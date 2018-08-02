@@ -116,11 +116,7 @@ ref_masking : True
 
 # ** Command line options that will be used by blastn for alignment (string) 
 blastn_opt : -evalue 0.1
-<<<<<<< HEAD:Conf.txt
 blastn_threads : 1
-=======
-blastn_threads : 2
->>>>>>> ContaVect_MABLT/master:test/dataset/Conf_example_file.txt
 
 # ** Command line options that will be used by mkblastdb for database creation (string)
 mkblastdb_opt :
@@ -194,11 +190,7 @@ bwa_index :
 
 # ** Command line options that will be used by bwa mem for alignment (string) 
 bwa_mem_opt : -M
-<<<<<<< HEAD:Conf.txt
 bwa_threads : 1
-=======
-bwa_threads : 2
->>>>>>> ContaVect_MABLT/master:test/dataset/Conf_example_file.txt
 
 # ** Command line options that will be used by bwa incdex for reference indexation (string) 
 bwa_index_opt :
