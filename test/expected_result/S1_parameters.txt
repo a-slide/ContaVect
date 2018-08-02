@@ -1,0 +1,76 @@
+################## REFERENCES ##################
+
+REFERENCE 1	Name: reference1
+	Fasta_path: ./reference1.fa
+	Total reference length: 5386
+	Number of sequences: 1
+	BAM MAKER
+		Sort reads : True
+		Output requested :	Bam	Bam_Index
+	COVERAGE MAKER
+		Minimal depth : 4
+		Output requested :	BedGraph	Bed	CovGraph
+	VARIANT MAKER
+		No output requested
+	Total read mapped: 800
+
+REFERENCE 2	Name: reference2
+	Fasta_path: ./reference2.fa
+	Total reference length: 48502
+	Number of sequences: 1
+	BAM MAKER
+		Sort reads : True
+		Output requested :	Bam	Bam_Index
+	COVERAGE MAKER
+		Minimal depth : 4
+		Output requested :	Bed
+	VARIANT MAKER
+		No output requested
+	Total read mapped: 100
+
+Reference homologies were masked with RefMasker
+blastn options : -evalue 0.1
+makeblastdb options : 
+
+################## FASTQ FILES ##################
+
+R1 : /home/mathieu/Programs/SSV-Seq/ContaVect/test/fastq/S1_R1_1_filtered.fastq
+R2 : /home/mathieu/Programs/SSV-Seq/ContaVect/test/fastq/S1_R2_2_filtered.fastq
+
+FASTQ FILTER Parallel Processing
+	Execution time : 0.138 s
+	Input fastq files
+		./S1_R1.fastq
+		./S1_R2.fastq
+	Output fastq files
+		/home/mathieu/Programs/SSV-Seq/ContaVect/test/fastq/S1_R1_1_filtered.fastq
+		/home/mathieu/Programs/SSV-Seq/ContaVect/test/fastq/S1_R2_2_filtered.fastq
+	Input quality score : fastq-sanger
+	Number of parallel processes : 4
+	Total pair processed : 460
+	Total pair passed : 460
+QUALITY FILTER
+	Pair pass quality filter : 460
+	Mean quality value : 35.5043478261
+	Min quality value : 34
+	Max quality value : 37
+
+QUALITY FILTER
+	Quality Threshold : 25
+
+
+################## BWA ALIGNMENT ##################
+
+index file : 
+bwa index options: 
+bwa mem option: -M
+bwa threads : 2
+
+################## OUTPUT ##################
+
+Minimal MAPQ score : 30
+Write garbage reads to sam: False
+Write garbage reads to bam: True
+Minimal depth for Coverage output : 4
+Minimal depth for Variant output : 500
+Minimal Variant frequency : 0.2
