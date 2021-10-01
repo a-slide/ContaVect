@@ -1,0 +1,26 @@
+Bootstrap: docker
+From: continuumio/anaconda:latest
+
+%help
+
+  """
+  Singularity Image for ContaVect.
+  See https://github.com/a-slide/ContaVect for help.
+  """
+
+%labels
+
+  Maintainer Université de Nantes / Genevia Technologies Ltd
+  Base https://hub.docker.com/continuumio/anaconda:latest
+  Licence GNU General Public License v2.0
+
+%post
+
+  # Install ContaVect dependancies
+  apt-get update --allow-releaseinfo-change -y
+  apt-get install -y samtools
+  conda install -y -c bioconda bwa
+  conda install -y -c conda-forge biopython
+  conda install -y -c bioconda pysam=0.11.2.2
+  conda install -y -c conda-forge matplotlib
+  conda install -y -c bioconda blast

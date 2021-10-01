@@ -52,3 +52,8 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# Local test files and dev scripts
+LOCAL_TEST/
+singularity/ContaVect
+test/experimental_result/
+test/dataset/out.fa

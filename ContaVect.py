@@ -18,12 +18,17 @@
 # IMPORTS
 try:
 	# Standard library packages import
-	from os import path, remove # Mandatory package
+	from os import path, remove, environ # Mandatory package
 	from time import time # Mandatory package
 	import ConfigParser # Mandatory package
 	from sys import argv # Mandatory package
 	import csv # Mandatory package
 	import optparse # Mandatory package
+
+	# Set MATPLOTLIBRC local variable
+	DIR_PATH = path.dirname(__file__)
+	MATPLOTLIBRC='{}/conf/matplotlibrc'.format(DIR_PATH)
+	environ["MATPLOTLIBRC"] = MATPLOTLIBRC
 
 	# Third party packages
 	import pysam # Mandatory package
