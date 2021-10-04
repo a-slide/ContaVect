@@ -37,7 +37,7 @@ class Reference(object):
     def refLen (self):
         length=0
         for ref in self.Instances:
-            for seq in ref.seq_dict.values():
+            for seq in list(ref.seq_dict.values()):
                 length+=seq.length
         return length
 
@@ -46,7 +46,7 @@ class Reference(object):
         if self.Instances:
             all_seq_list=[]
             for ref in self.Instances:
-                all_seq_list.extend([name for name in ref.seq_dict.keys()])
+                all_seq_list.extend([name for name in list(ref.seq_dict.keys())])
             return all_seq_list
         else:
             return []
@@ -66,7 +66,7 @@ class Reference(object):
     @ classmethod
     def printInstances (self):
         for ref in self.Instances:
-            print (repr(ref))
+            print((repr(ref)))
             
     @ classmethod
     def reprInstances (self):
@@ -77,7 +77,7 @@ class Reference(object):
 
     @ classmethod
     def resetInstances (self):
-        print "Clearing Reference instances list"
+        print("Clearing Reference instances list")
         self.Instances = []
         self.id_count = 0
 
@@ -93,7 +93,7 @@ class Reference(object):
                 ref.nread+=1
                 return
 
-        raise ValueError, "Seq name not found in references"
+        raise ValueError("Seq name not found in references")
 
     @ classmethod
     def set_global (self, key, value):
@@ -118,7 +118,7 @@ class Reference(object):
         """
 
         # Store object variables
-        print ("Creating reference object {}".format(name))
+        print(("Creating reference object {}".format(name)))
         self.name = name
         self.id = self.next_id()
         self.ref_fasta = ref_fasta
@@ -158,7 +158,7 @@ class Reference(object):
         return "<Instance of {} from {} >\n".format(self.__class__.__name__, self.__module__)
 
     def __len__(self):
-        return sum([len(seq) for seq in self.seq_dict.values()])
+        return sum([len(seq) for seq in list(self.seq_dict.values())])
 
     def get(self, key):
         return self.__dict__[key]
@@ -172,10 +172,10 @@ class Reference(object):
         """
         Create output files according to user specifications
         """
-        print "Processing reference :{}\tReads aligned :{} ".format(self.name, self.nread)
-        print "\tPreparing data..."
+        print("Processing reference :{}\tReads aligned :{} ".format(self.name, self.nread))
+        print("\tPreparing data...")
         # Generate a simple dictionary associating seq name and read_list
-        read_dict = {name: seq.read_list for name, seq in self.seq_dict.items()}
+        read_dict = {name: seq.read_list for name, seq in list(self.seq_dict.items())}
 
         # Call Behavior methods
         self.bam_maker.make(self.bam_header, read_dict, outpath, self.name)
@@ -193,9 +193,9 @@ class Reference(object):
         # Init a file pointer
         try:
             if self.ref_fasta[-2:].lower() == "gz":
-                fp = gzip.open(self.ref_fasta,"rb")
+                fp = gzip.open(self.ref_fasta,"r")
             else:
-                fp = open(self.ref_fasta,"rb")
+                fp = open(self.ref_fasta,"r")
 
         except Exception as E:
             fp.close()

@@ -5,8 +5,8 @@ from os import remove, path
 
 # Local library packages import
 #from SamSpliter import SamSpliter
-from MemWrapper import Aligner
-from IndexWrapper import NewIndex, ExistingIndex
+from .MemWrapper import Aligner
+from .IndexWrapper import NewIndex, ExistingIndex
 from pyDNA.Utilities import mkdir
 
 #~~~~~~~MAIN METHODS~~~~~~~#

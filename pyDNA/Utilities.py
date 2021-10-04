@@ -68,7 +68,7 @@ def make_cmd_str(prog_name, opt_dict={}, opt_list=[]):
 
     # Add options arguments from opt_dict
     if opt_dict:
-        for key, value in opt_dict.items():
+        for key, value in list(opt_dict.items()):
             if value:
                 cmd += "-{} {} ".format(key, value)
             else:
@@ -120,10 +120,10 @@ def copyFile(src, dest):
         shutil.copy(src, dest)
     # eg. src and dest are the same file
     except shutil.Error as e:
-        print('Error: %s' % e)
+        print(('Error: %s' % e))
     # eg. source or destination doesn't exist
     except IOError as e:
-        print('Error: %s' % e.strerror)
+        print(('Error: %s' % e.strerror))
 
 
 def fgzip(in_path, out_path=None):
@@ -145,7 +145,7 @@ def fgzip(in_path, out_path=None):
         in_handle = open(in_path, "rb")
         out_handle = gzip.open(out_path, "wb")
         # Write input file in output file
-        print ("Compressing {}".format(in_path))
+        print(("Compressing {}".format(in_path)))
         out_handle.write (in_handle.read())
         # Close both files
         in_handle.close()
@@ -158,7 +158,7 @@ def fgzip(in_path, out_path=None):
             try:
                 remove (out_path)
             except OSError:
-                print "Can't remove {}".format(out_path)
+                print("Can't remove {}".format(out_path))
 
 def fgunzip(in_path, out_path=None):
     """
@@ -179,7 +179,7 @@ def fgunzip(in_path, out_path=None):
         in_handle = gzip.GzipFile(in_path, 'rb')
         out_handle = open(out_path, "wb")
         # Write input file in output file
-        print ("Uncompressing {}".format(in_path))
+        print(("Uncompressing {}".format(in_path)))
         out_handle.write (in_handle.read())
         # Close both files
         out_handle.close()
@@ -192,7 +192,7 @@ def fgunzip(in_path, out_path=None):
             try:
                 remove (out_path)
             except OSError:
-                print "Can't remove {}".format(out_path)
+                print("Can't remove {}".format(out_path))
 
 def expand_file (infile, outdir="./"):
     """
@@ -254,13 +254,13 @@ def merge_files (inpath_list, outpath="out", compress_output=True, bufsize = 100
     outpath = path.abspath(outpath)+".gz" if compress_output else path.abspath(outpath)
     openout = gzip.open if compress_output else open
 
-    with openout(outpath, "wb") as out_handle:
+    with openout(outpath, "w") as out_handle:
         # Iterate over files in the input list
         for inpath in inpath_list:
 
             # Open according to the compression
             openin = gzip.open if is_gziped(inpath) else open
-            with openin (inpath, "rb") as in_handle:
+            with openin (inpath, "r") as in_handle:
                 stdout.write("\t+ {}  ".format(file_name(inpath)))
                 stdout.flush()
 
@@ -284,7 +284,7 @@ def merge_files (inpath_list, outpath="out", compress_output=True, bufsize = 100
                 stdout.flush()
                 out_handle.write(linebuf)
 
-    print ("{} files merged in {}s\n".format (len(inpath_list), round(time()-stime,3)))
+    print(("{} files merged in {}s\n".format (len(inpath_list), round(time()-stime,3))))
     return outpath
 
 def file_basename (path):
@@ -455,7 +455,7 @@ def gb_to_bed(gb_file, track_description="User Supplied Track", features_type = 
             
             # parse record
             record = SeqIO.read( gb, "genbank")
-            print ("{} features to be parsed\n".format(len(record.features)))
+            print(("{} features to be parsed\n".format(len(record.features))))
             
             # write bed header
             bed.write("""track name={} description="{}" visibility=2 colorByStrand="255,0,0 0,0,255"\n""".format(
@@ -552,7 +552,7 @@ def fetch_all_bam (bam_pattern, seq_name, coord_list, outname):
 
     # Fetch file for coordinates in coord list 
     for bam in bam_list:
-        print("\nAnalysing file : "+bam)
+        print(("\nAnalysing file : "+bam))
         
         if not os.path.isfile(bam+".bai"):
             print ("\tGenerate a Bam index")

@@ -5,8 +5,8 @@ from os import path
 
 # Local library packages import
 from pyDNA.Utilities import mkdir, import_seq, file_basename, file_name, file_extension, fgunzip
-from BlastnWrapper import Aligner
-from MakeblastdbWrapper import NewDB, ExistingDB
+from .BlastnWrapper import Aligner
+from .MakeblastdbWrapper import NewDB, ExistingDB
 
 #~~~~~~~MAIN METHODS~~~~~~~#
 

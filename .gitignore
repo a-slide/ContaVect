@@ -57,3 +57,4 @@ LOCAL_TEST/
 singularity/ContaVect
 test/experimental_result/
 test/dataset/out.fa
+singularity/ContaVect_3

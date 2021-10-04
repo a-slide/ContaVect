@@ -8,7 +8,7 @@ from tempfile import mkstemp
 
 # Local library packages
 from pyDNA.Utilities import run_command, file_basename, fgunzip
-from BlastHit import BlastHit
+from .BlastHit import BlastHit
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 class Aligner(object):
@@ -81,7 +81,7 @@ class Aligner(object):
 
     def _align (self, query_name, blastn_opt):
 
-        print ("Blast {} against {} database with blastn".format(query_name, file_basename (self.Blastdb.db_path))),
+        print(("Blast {} against {} database with blastn".format(query_name, file_basename (self.Blastdb.db_path))), end=' ')
 
         # Build the command line string
         cmd = "{} {}".format(self.blastn, blastn_opt)
@@ -95,7 +95,7 @@ class Aligner(object):
             BlastHit(h[0], h[1] , h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11])
 
         # Sumarize the hit count in the different references
-        print ("\t{} hits found".format(BlastHit.count_total()))
+        print(("\t{} hits found".format(BlastHit.count_total())))
 
         # Get the list of hits from BlastHit class and reset the class list.
         hits_list = BlastHit.get()

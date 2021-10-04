@@ -99,7 +99,7 @@ class VariantMaker (object):
                     threshold = int(PileUpCol.n*self.min_freq)
 
                     # If more than one frequent DNA base or indel was found at this position
-                    if sum([1 for base, count in posDic.items() if count >= threshold]) >= 2:
+                    if sum([1 for base, count in list(posDic.items()) if count >= threshold]) >= 2:
                         out_list.append([
                             ref_name,
                             bamfile.getrname(PileUpCol.tid),

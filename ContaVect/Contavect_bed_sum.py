@@ -69,8 +69,8 @@ def main ():
 def usage():
     """Simple usage function"""
 
-    print ("Usage: ", argv[0], "<Pattern of bed files to match> <output name of the csv file>")
-    print ("\tExample : ", argv[0], " .AAV.csv  ALL_AAV.csv")
+    print(("Usage: ", argv[0], "<Pattern of bed files to match> <output name of the csv file>"))
+    print(("\tExample : ", argv[0], " .AAV.csv  ALL_AAV.csv"))
     exit(1)
 
 if __name__ == '__main__':

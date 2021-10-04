@@ -62,7 +62,7 @@ class NewIndex(object):
                 self._make_index()
                 #remove ("./out.fa")
             else:
-                raise TypeError, "ref variable is neither a list nor a string"
+                raise TypeError("ref variable is neither a list nor a string")
 
         except Exception as E:
             self._remove_index_files()
@@ -77,14 +77,14 @@ class NewIndex(object):
         # Build the command line
         cmd = "{} {} {}".format(self.indexer, self.index_opt, self.ref)
 
-        print "Creating a BWA index"
+        print("Creating a BWA index")
 
         # Run the command line without stdin and asking both stdout and stderr
         start_time = time()
         stderr = run_command(cmd, stdin=None, ret_stderr=True, ret_stdout=False)
 
         print (stderr)
-        print ("Index created in {}s\n".format(round(time()-start_time, 3)))
+        print(("Index created in {}s\n".format(round(time()-start_time, 3))))
 
     def _remove_index_files(self):
         """

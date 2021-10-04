@@ -117,7 +117,7 @@ class CoverageMaker (object):
             
             # TODO NAME SHOULD INCLUDE USER PREFIX 
             # Write bedGraph header
-                outfile.write ("track type=bedGraph name={} color=0,0,0\n".format(ref_name))
+                outfile.write ("track type=bedGraph name={} color=0,0,0\n".format(ref_name).encode())
 
                 # Iterate over all seq in bam header
                 for seq_name in bamfile.references:
@@ -129,7 +129,7 @@ class CoverageMaker (object):
                         # If bellow the threshold write only if the last position was above
                         if PileUpCol.n < self.min_depth:
                             if start != -1:
-                                outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, start, pos_prec+1, depth_prec))
+                                outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, start, pos_prec+1, depth_prec).encode())
                             start = -1
                             depth_prec = -1
 
@@ -143,7 +143,7 @@ class CoverageMaker (object):
                         # And finally if there was a change in depth.
                         elif PileUpCol.n != depth_prec:
                             if start != -1:
-                                outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, start, pos_prec+1, depth_prec))
+                                outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, start, pos_prec+1, depth_prec).encode())
                             start = PileUpCol.pos
                             depth_prec = PileUpCol.n
 
@@ -172,7 +172,7 @@ class CoverageMaker (object):
             with open (bed, "wb") as outfile:
 
             # Write bed header
-                outfile.write ("track type=bed name={} color=0,0,0\n".format(ref_name))
+                outfile.write ("track type=bed name={} color=0,0,0\n".format(ref_name).encode())
 
                 # Iterate over all seq in bam header
                 for seq_dict in bam.header['SQ']:
@@ -191,15 +191,15 @@ class CoverageMaker (object):
                         # Write the missing positions since pileup do not report uncovered regions
                         if PileUpCol.pos != pos_prec+1:
                             for i in range(pos_prec+1, PileUpCol.pos):
-                                outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, i, i+1, 0))
+                                outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, i, i+1, 0).encode())
                                 write = True
 
                         # Write the current position
                         if PileUpCol.n < self.min_depth:
-                            outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, PileUpCol.pos, PileUpCol.pos+1, 0))
+                            outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, PileUpCol.pos, PileUpCol.pos+1, 0).encode())
                             write = True
                         else:
-                            outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, PileUpCol.pos, PileUpCol.pos+1, PileUpCol.n))
+                            outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, PileUpCol.pos, PileUpCol.pos+1, PileUpCol.n).encode())
                             write = True
 
                         # Update the position tracker
@@ -208,7 +208,7 @@ class CoverageMaker (object):
                     # Write the last entries for the sequence if needed
                     if write and pos_prec < seq_len-1:
                         for i in range(pos_prec+1, seq_len-1):
-                            outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, i, i+1, 0))
+                            outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, i, i+1, 0).encode())
         return bed
 
     def _make_covgraph (self, bam_path, outpath="./out", ref_name = "ref"):

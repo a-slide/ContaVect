@@ -79,9 +79,9 @@ class BamMaker(object):
             if self.sort: # flat sorted list
                 print ("\tSorting reads...")
                 read_list = self._sort_read(header, read_col)
-                header['HD'] = {'VN': '1.5', 'SO' : 'coordinate'}
+                header.to_dict()['HD'] = {'VN': '1.5', 'SO' : 'coordinate'}
             else: # flat unsorted list
-                read_list = [item for sublist in read_dict.values() for item in sublist]
+                read_list = [item for sublist in list(read_dict.values()) for item in sublist]
         # else just use the list
         else:
             read_list = read_col

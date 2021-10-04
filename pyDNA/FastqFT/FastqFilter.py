@@ -89,7 +89,7 @@ class FastqFilter(object):
         # Count lines in fastq file to prepare a counter of progression
         print ("Count the number of fastq sequences")
         self.nseq = count_seq(R1, "fastq")
-        print("fastq files contain {} sequences to align".format(self.nseq))
+        print(("fastq files contain {} sequences to align".format(self.nseq)))
         self.nseq_list = [int(self.nseq*i/100.0) for i in range(5,101,5)] # 5 percent steps
 
         # Init queues for input file reading and output file writing (limited to 10000 objects)
@@ -170,17 +170,17 @@ class FastqFilter(object):
         try:
             # Open input fastq streams for reading
             if self.R1_in[-2:].lower() == "gz":
-                in_R1 = gzip.open(self.R1_in, "rb")
+                in_R1 = gzip.open(self.R1_in, "r")
             else:
-                in_R1 = open(self.R1_in, "rb")
+                in_R1 = open(self.R1_in, "r")
 
             if self.R2_in[-2:].lower() == "gz":
-                in_R2 = gzip.open(self.R2_in, "rb")
+                in_R2 = gzip.open(self.R2_in, "r")
             else:
-                in_R2 = open(self.R2_in, "rb")
+                in_R2 = open(self.R2_in, "r")
 
         except (IOError, TypeError, ValueError) as E:
-            print E
+            print(E)
             exit
 
         # Init generators to iterate over files
@@ -199,7 +199,7 @@ class FastqFilter(object):
 
             i+=1
             if i in self.nseq_list:
-                print ("\t{} sequences: {}%".format(i, int(i*100.0/self.nseq)))
+                print(("\t{} sequences: {}%".format(i, int(i*100.0/self.nseq))))
 
         # Close files
         in_R1.close()
@@ -248,14 +248,14 @@ class FastqFilter(object):
         # Add a STOP pill to the queue
         self.outq.put("STOP")
 
-        # Fill shared memomory counters from process specific object instances.
-        if self.qual:
+        # Fill shared memory counters from process specific object instances.
+        if len(self.qual.mean_qual) > 0:
             with self.weighted_mean.get_lock():
                 self.weighted_mean.value += (self.qual.get_mean_qual()*self.qual.get('total'))
             if self.qual.get_min_qual() < self.min_qual_found.value:
-                self.min_qual_found.value = self.qual.get_min_qual()
+                self.min_qual_found.value = int(self.qual.get_min_qual())
             if self.qual.get_max_qual() > self.max_qual_found.value:
-                self.max_qual_found.value = self.qual.get_max_qual()
+                self.max_qual_found.value = int(self.qual.get_max_qual())
 
         if self.adapt:
             with self.seq_untrimmed.get_lock():
@@ -288,8 +288,8 @@ class FastqFilter(object):
         for works in range(self.numprocs):
             # Will exit the loop as soon as a Stop pill will be found
             for seqR1, seqR2 in iter(self.outq.get, "STOP"):
-                out_R1.write(seqR1.format("fastq-sanger"))
-                out_R2.write(seqR2.format("fastq-sanger"))
+                out_R1.write(seqR1.format("fastq-sanger").encode())
+                out_R2.write(seqR2.format("fastq-sanger").encode())
                 with self.total_pass.get_lock():
                     self.total_pass.value+=1
 

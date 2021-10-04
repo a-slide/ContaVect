@@ -43,7 +43,7 @@ def align (opt):
         query_handle = open(opt.query, "r")
     query_gen = SeqIO.parse(query_handle, opt.qtype)
 
-    print("{} contains {} sequences to align".format(opt.query, nseq))
+    print(("{} contains {} sequences to align".format(opt.query, nseq)))
     # Calculate a step list for the progress bar
     nseq_list = [int(nseq*i/100.0) for i in range(5,101,5)]
 
@@ -110,9 +110,9 @@ def align (opt):
             if i in nseq_list:
                 frac = i/float(nseq)
                 t = time()-start
-                print ("{} sequences \t{}% \tRemaining time = {}s".format(i, int(frac*100), round(t/frac-t, 2)))
+                print(("{} sequences \t{}% \tRemaining time = {}s".format(i, int(frac*100), round(t/frac-t, 2))))
 
-        print ("\n{} Sequences processed in {}s".format(i, round(time()-start, 2)))
+        print(("\n{} Sequences processed in {}s".format(i, round(time()-start, 2))))
 
 #~~~~~~~HELPER FUNCTIONS~~~~~~~#
 
@@ -264,7 +264,7 @@ if __name__ == '__main__':
         sys.exit()
 
     try:
-        from ssw_wrap import Aligner
+        from .ssw_wrap import Aligner
     except ImportError:
         print ("ERROR: Please place ssw_wrap in the current directory or add its dir to python path")
         sys.exit()

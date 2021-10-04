@@ -13,7 +13,7 @@ from Bio import SeqIO
 
 # Local library packages import
 from pyDNA.Utilities import import_seq, file_basename, mkdir
-from Blast import Blastn
+from .Blast import Blastn
 
 #~~~~~~~MAIN METHODS~~~~~~~#
 
@@ -65,10 +65,10 @@ def mask (  subject_fasta,
         out_handle = open(ref_path, 'w')
 
     # Generate a list of ref that will need to be modified
-    id_list = {hit.s_id:0 for hit in hit_list}.keys()
+    id_list = list({hit.s_id:0 for hit in hit_list}.keys())
 
     # Iterate over record in the subject fasta file
-    print ("Masking hit positions and writting a new reference for {} ".format(ref_outname))
+    print(("Masking hit positions and writting a new reference for {} ".format(ref_outname)))
     i=j=0
     start_time = time()
     for record in SeqIO.parse(in_handle, "fasta"):
@@ -98,7 +98,7 @@ def mask (  subject_fasta,
         out_handle.write(record.format("fasta"))
     print("")
     # Report informations
-    print("{} sequence(s) from {} modified in {}s".format(i,ref_outname, round(time()-start_time),2))
+    print(("{} sequence(s) from {} modified in {}s".format(i,ref_outname, round(time()-start_time),2)))
 
     # Close files and return the masked ref path
     in_handle.close()

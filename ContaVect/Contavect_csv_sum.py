@@ -56,8 +56,8 @@ def main ():
 def usage():
     """Simple usage function"""
 
-    print ("Usage: ", argv[0], "<Patern of csv files to match> <output name of the csv file>")
-    print ("\tExample : ", argv[0], " _Reference_distribution.csv  ALL_Reference_distribution.csv")
+    print(("Usage: ", argv[0], "<Patern of csv files to match> <output name of the csv file>"))
+    print(("\tExample : ", argv[0], " _Reference_distribution.csv  ALL_Reference_distribution.csv"))
 
 if __name__ == '__main__':
     if len(argv) < 2:        # if not enought arg call usage function

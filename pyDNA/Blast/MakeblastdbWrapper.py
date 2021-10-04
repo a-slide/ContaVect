@@ -86,7 +86,7 @@ class NewDB(object):
             raise Exception ("Error, no data received from standard output\n"+stderr)
 
         #print (stdout)
-        print ("Database created in {}s".format(round(time()-start_time, 3)))
+        print(("Database created in {}s".format(round(time()-start_time, 3))))
 
     def _remove_db_files(self):
         """

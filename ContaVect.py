@@ -20,7 +20,7 @@ try:
 	# Standard library packages import
 	from os import path, remove, environ # Mandatory package
 	from time import time # Mandatory package
-	import ConfigParser # Mandatory package
+	import configparser # Mandatory package
 	from sys import argv # Mandatory package
 	import csv # Mandatory package
 	import optparse # Mandatory package
@@ -98,16 +98,16 @@ class Main(object):
 		# Create a empty configuration file if needed with the number of reference necessary
 		if number_ref:
 			if number_ref > 1:
-				print "Create an empty configuration file with {} references in the current folder.".format(number_ref)
+				print(("Create an empty configuration file with {} references in the current folder.".format(number_ref)))
 			else:
-				print "Create an empty configuration file with {} reference in the current folder.".format(number_ref)
+				print(("Create an empty configuration file with {} reference in the current folder.".format(number_ref)))
 			write_conf_file(number_ref)
 			exit()
 		
 		# TODO manage import flags define default values and verify file existence
 		# CL ARGUMENTS AND CONF FILE PARSING
 
-		self.conf = ConfigParser.RawConfigParser(allow_no_value=True)
+		self.conf = configparser.RawConfigParser(allow_no_value=True)
 		self.conf.read(conf_file)
 		if not self.conf.sections():
 			print ("Empty or invalid configuration file. See Readme for more informations\n")
@@ -175,12 +175,12 @@ class Main(object):
 						'output' : self.conf.get(ref_id, "output").split(),}
 				self.raw_ref_list.append(ref)
 
-		except ConfigParser.NoOptionError as E:
+		except configparser.NoOptionError as E:
 			print (E)
 			print ("An option is missing in the configuration file")
 			print ("Please report to the descriptions in the configuration file\n")
 			exit()
-		except ConfigParser.NoSectionError as E:
+		except configparser.NoSectionError as E:
 			print (E)
 			print ("An section is missing in the configuration file")
 			print ("Please report to the descriptions in the configuration file\n")
@@ -194,7 +194,7 @@ class Main(object):
 	def __repr__(self):
 		msg = "MAIN CLASS\n"
 		msg+= "\tParameters list\n"
-		for i, j in self.__dict__.items():
+		for i, j in list(self.__dict__.items()):
 			msg+="\t{}\t{}\n".format(i, j)
 		return (msg)
 
@@ -285,7 +285,7 @@ class Main(object):
 		self._make_report()
 		
 		print ("\n##### DONE #####\n")
-		print ("Total execution time = {}s".format(round(time()-stime, 2)))
+		print(("Total execution time = {}s".format(round(time()-stime, 2))))
 
 	##~~~~~~~PRIVATE METHODS~~~~~~~#
 
@@ -324,7 +324,7 @@ class Main(object):
 				#if seq.length < 3000:
 					#import_and_pad (
 		
-			print (repr(Ref))
+			print((repr(Ref)))
 
 	def _iterative_masker (self): #### TODO The fuction directly manipulate reference field= change that
 		"""
@@ -338,7 +338,7 @@ class Main(object):
 			# Extract subject and query_list from ref_list
 			subject = Reference.Instances[i]
 			query_list = Reference.Instances[0:i]
-			print ("\n# PROCESSING REFERENCE {} #\n".format(subject.name))
+			print(("\n# PROCESSING REFERENCE {} #\n".format(subject.name)))
 
 			# Perform a blast of query list against subject
 			hit_list = Blastn.align (
@@ -398,14 +398,14 @@ class Main(object):
 			compress_output=False)
 
 		# Print a simple result
-		print ("Pairs processed: {}\t Pairs passed : {}\t in {} s".format(
+		print(("Pairs processed: {}\t Pairs passed : {}\t in {} s".format(
 			self.fFilter.getCTypeVal('total'),
 			self.fFilter.getCTypeVal('total_pass'),
-			self.fFilter.get('exec_time')))
+			self.fFilter.get('exec_time'))))
 
 		# Write a detailed report in a logfile
 		output = "{}{}_FastqFilter_report.txt".format(self.fastq_dir, self.outprefix)
-		with open (output, "wb") as outfile:
+		with open (output, "w") as outfile:
 			outfile.write(repr(self.fFilter))
 
 		return self.fFilter.getTrimmed()
@@ -459,7 +459,7 @@ class Main(object):
 			make_sam = self.unmapped_sam)
 
 		for seq in self.garbage_read:
-			print "Processing garbage reads :{}\tReads aligned :{} ".format(seq.name, seq.nread)
+			print(("Processing garbage reads :{}\tReads aligned :{} ".format(seq.name, seq.nread)))
 			bam_maker.make(
 				header = self.bam_header,
 				read_col = seq.read_list,
@@ -470,7 +470,7 @@ class Main(object):
 		"""
 		"""
 		output = "{}{}_Reference_distribution.csv".format(self.result_dir, self.outprefix)
-		with open(output, 'wb') as csvfile:
+		with open(output, 'w') as csvfile:
 			writer = csv.writer(csvfile, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
 			# Table for all reference
 			writer.writerow(["Ref name","length","nread","RPKB"])
@@ -481,12 +481,12 @@ class Main(object):
 			writer.writerow(["Unmaped_and LowMapq","NA",nread,"NA"])
 
 		output = "{}{}_Sequence_distribution.csv".format(self.result_dir, self.outprefix)
-		with open(output, 'wb') as csvfile:
+		with open(output, 'w') as csvfile:
 			writer = csv.writer(csvfile, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
 			# Table decomposing Sequence per Reference
 			writer.writerow(["Seq name","length","nread","RPKB"])
 			for ref in Reference.getInstances():
-				for seq in ref.seq_dict.values():
+				for seq in list(ref.seq_dict.values()):
 					writer.writerow([seq.name, len(seq), seq.nread, float(seq.nread)/len(seq)*1000])
 			# Add a lines for garbage reads including the secondary alignments
 			for seq in self.garbage_read:
@@ -496,7 +496,7 @@ class Main(object):
 		"""
 		"""
 		output = "{}{}_parameters.txt".format(self.result_dir, self.outprefix)
-		with open(output, 'wb') as outfile:
+		with open(output, 'w') as outfile:
 		
 			# References options
 			outfile.write("################## REFERENCES ##################\n\n")
