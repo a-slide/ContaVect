@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: continuumio/anaconda:latest
+From: python:latest
 
 %help
 
@@ -16,11 +16,12 @@ From: continuumio/anaconda:latest
 
 %post
 
-  # Install ContaVect dependancies
-  apt-get update --allow-releaseinfo-change -y
-  apt-get install -y samtools
-  conda install -y -c bioconda bwa
-  conda install -y -c conda-forge biopython
-  conda install -y -c bioconda pysam=0.11.2.2
-  conda install -y -c conda-forge matplotlib
-  conda install -y -c bioconda blast
+  apt-get update -y
+  # Install contavect dependancies
+  apt install -y samtools
+  apt install -y ncbi-blast+
+  apt install -y bwa
+  # Install python packages
+  pip install biopython
+  pip install matplotlib
+  pip install pysam
