@@ -2,13 +2,10 @@ name: ContaVect
 channels:
   - bioconda
   - conda-forge
-dependancies:
-  - python=2.7
+dependencies:
+  - python=3.5
   - bwa
   - biopython
-  - pysam==0.11.2.2
-  - mathplotlib
+  - pysam
+  - matplotlib
   - blast
-variables:
-
-
