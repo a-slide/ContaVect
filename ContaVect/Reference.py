@@ -193,7 +193,7 @@ class Reference(object):
         # Init a file pointer
         try:
             if self.ref_fasta[-2:].lower() == "gz":
-                fp = gzip.open(self.ref_fasta,"r")
+                fp = gzip.open(self.ref_fasta,"rt")
             else:
                 fp = open(self.ref_fasta,"r")
 

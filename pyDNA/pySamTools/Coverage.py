@@ -136,7 +136,7 @@ class CoverageMaker (object):
                         # If above the threshold but missing bases
                         elif PileUpCol.pos != pos_prec+1:
                             if start != -1:
-                                outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, start, pos_prec+1, depth_prec))
+                                outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, start, pos_prec+1, depth_prec).encode())
                             start = PileUpCol.pos
                             depth_prec = PileUpCol.n
 
@@ -152,7 +152,7 @@ class CoverageMaker (object):
 
                     # Write the last entry for the sequence if needed
                     if start != -1:
-                        outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, start, pos_prec+1, depth_prec))
+                        outfile.write("{}\t{}\t{}\t{}\n".format(seq_name, start, pos_prec+1, depth_prec).encode())
         return bedgraph
 
 
@@ -172,7 +172,7 @@ class CoverageMaker (object):
             with open (bed, "wb") as outfile:
 
             # Write bed header
-                outfile.write ("track type=bed name={} color=0,0,0\n".format(ref_name).encode())
+                outfile.write("track type=bed name={} color=0,0,0\n".format(ref_name).encode())
 
                 # Iterate over all seq in bam header
                 for seq_dict in bam.header['SQ']:
