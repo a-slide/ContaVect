@@ -2,7 +2,7 @@
 
 
 ## Motivation
-Contavect is a **python2.7** object oriented script, developed to quantify and characterize DNA contaminants from gene therapy vector production after NGS sequencing. This automated pipeline can however be used for wider purpose requiring to identify map NGS datasets consisting of a mix of DNA sequences on multiple references. It combine several features such as reference homologies masking, fastq filtering/adapter trimming, short read alignments, SAM file splitting and generating human readable output.
+Contavect is a **python3.10** object oriented script, developed to quantify and characterize DNA contaminants from gene therapy vector production after NGS sequencing. This automated pipeline can however be used for wider purpose requiring to identify map NGS datasets consisting of a mix of DNA sequences on multiple references. It combine several features such as reference homologies masking, fastq filtering/adapter trimming, short read alignments, SAM file splitting and generating human readable output.
 
 ## Principle
 
@@ -21,47 +21,46 @@ Contavect a python pipeline composed of several modules linked together to analy
 
 For more information, a comprehensive developer documentation can be generated from ContaVect.dox using [Doxygen](https://github.com/doxygen/doxygen) with [doxypy](https://github.com/0xCAFEBABE/doxypy).
 
-## Dependencies:
+## Installation:
 
-The program was developed under Linux Mint 16/17 and require a python 2.7 environment.
-The following dependencies are required for proper program execution:
+First of all, clone the repository:
+``` bash
+$ git clone --recursive https://github.com/emlec/ContaVect/
+```
 
-* [bwa 0.7.0+](https://github.com/lh3/bwa)
-* [samtools 0.1.17+](https://github.com/samtools/samtools)
-* blast+ (not required is not no reference masking is to be performed) 
+You can then use Singularity or Conda to proceed.
 
-In addtion 2 third party python packages are also needed: 
+### Using Singularity
 
-* [Biopython](https://github.com/biopython/biopython) 1.60+
-* [pysam](https://github.com/pysam-developers/pysam) == 0.11.2.2
+Singularity (3.7.0 or above) must be installed on your system.
 
-If you have pip already installed, enter the following line to install pysam:
+To build the singularity container, admin rights are needed. Use the following command:
 ```bash
-sudo pip install pysam
+sudo singularity build ContaVect singularity/Singularity.rcp
+```
+To check dependencies versions in the container, use:
+```bash
+singularity run --app versions Contavect
+```
+To start a shell in the container, and use ContaVect, use:
+```bash
+singularity shell Contavect
 ```
 
-## Get ContaVect
+### Using Conda
 
-1. Clone the repository with --recursive option to also pull the submodule
-``` bash
-$ git clone --recursive https://github.com/emlec/ContaVect/ my_folder/
+Conda (4.10.1 or above) must be installed on your system.
+To build the conda environment use:
+```bash
+conda env create -f conda/Conda.yml
 ```
 
-2. Enter the root of the program folder and make the main script executable
-``` bash
-$ sudo chmod u+x ContaVect.py
+To activate it, and start ContaVect, use:
+```bash
+conda activate ContaVect
 ```
 
-3.Compile the ssw aligner (and add the dynamic library it to the path)
-
-If you wish to perform a step of adapter trimming before mapping you need to complile the dynamic library ssw.so to be able to use the Smith Waterman algorithm forked from mengyao's [Complete-Striped-Smith-Waterman-Library](https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library).
-
-To use the dynamic library libssw.so you may need to modify the LD_LIBRARY_PATH environment
-variable to include the library directory (export LD_LIBRARY_PATH=$PWD) or for definitive
-inclusion of the lib edit /etc/ld.so.conf and add the path or the directory containing the
-library and update the cache by using /sbin/ldconfig as root.
-
-## Usage
+## Running ContaVect
 
 Prepare the configuration file to include your files and settings as indicated in the template Conf.txt file provided with the source files
 ``` 
