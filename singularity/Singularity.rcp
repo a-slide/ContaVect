@@ -22,6 +22,26 @@ From: python:latest
   apt install -y ncbi-blast+
   apt install -y bwa
   # Install python packages
-  pip install biopython
-  pip install matplotlib
-  pip install pysam
+  pip install biopython==1.79
+  pip install matplotlib==3.4.3
+  pip install pysam==0.17.0
+
+#Versions checks
+%appenv versions
+
+  export BWAVERSION='BWA: '$(bwa 2>&1 | grep "Version" | sed 's/Version: //')
+  export SAMTOOLSVERSION='Samtools: '$(samtools --version | grep "samtools" | sed 's/samtools //')
+  export BLASTVERSION='BLAST: '$(blastn -version | grep "Package: blast" | sed 's/ Package: blast //' | sed 's/, build Feb  1 2021 02:23:21//')
+  export PYSAMVERSION='pySAM: '$(python -c "import pysam; print(pysam.__version__)")
+  export MATPLOTLIBVERSION='Matplotlib: '$(python -c "import matplotlib; print(matplotlib.__version__)")
+  export BIOPYTHONVERSION='Biopython: '$(python -c "import Bio; print(Bio.__version__)")
+
+%apprun versions
+
+  echo 'Dependencies versions:'
+  echo $BWAVERSION
+  echo $SAMTOOLSVERSION
+  echo $BLASTVERSION
+  echo $PYSAMVERSION
+  echo $MATPLOTLIBVERSION
+  echo $BIOPYTHONVERSION

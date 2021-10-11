@@ -3,9 +3,9 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - python=3.5
-  - bwa
-  - biopython
-  - pysam
-  - matplotlib
-  - blast
+  - python==3.9.7
+  - bwa==0.7.17
+  - biopython==1.79
+  - pysam==0.17.0
+  - matplotlib==3.4.3
+  - blast==2.12.0
