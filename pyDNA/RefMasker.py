@@ -10,6 +10,7 @@ from sys import stdout
 
 # Third party package import
 from Bio import SeqIO
+from Bio.Seq import MutableSeq
 
 # Local library packages import
 from pyDNA.Utilities import import_seq, file_basename, mkdir
@@ -66,6 +67,7 @@ def mask (  subject_fasta,
 
     # Generate a list of ref that will need to be modified
     id_list = list({hit.s_id:0 for hit in hit_list}.keys())
+    id_list = [contig.decode('ascii') for contig in id_list]
 
     # Iterate over record in the subject fasta file
     print(("Masking hit positions and writting a new reference for {} ".format(ref_outname)))
@@ -79,9 +81,9 @@ def mask (  subject_fasta,
         # Check if the record is in the list of record to modify
         if record.id in id_list:
             i+=1
-            #~print ("Hit found in {}. Editing the sequence".format(record.id))
+            # print("Hit found in {}. Editing the sequence".format(record.id))
             # Casting Seq type to MutableSeq Type to allow string editing
-            record.seq = record.seq.tomutable()
+            record.seq = MutableSeq(record.seq)
 
             # For each hit in the list of hit found
             for hit in hit_list:
@@ -92,7 +94,7 @@ def mask (  subject_fasta,
                         record.seq[position]= 'n'
         else:
             j+=1
-            #~print ("No hit found in {}".format(record.id))
+            # print("No hit found in {}".format(record.id))
 
         # Finally write the sequence modified or not
         out_handle.write(record.format("fasta"))

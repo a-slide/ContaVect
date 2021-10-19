@@ -13,6 +13,11 @@ From: python:latest
   Maintainer Université de Nantes / Genevia Technologies Ltd
   Base https://hub.docker.com/continuumio/anaconda:latest
   Licence GNU General Public License v2.0
+  Version 1.0
+
+%environment
+
+  export CONTAVECTVERSION='ContaVect: 1.0'
 
 %post
 
@@ -38,6 +43,7 @@ From: python:latest
 
 %apprun versions
 
+  echo $CONTAVECTVERSION
   echo 'Dependencies versions:'
   echo $BWAVERSION
   echo $SAMTOOLSVERSION
