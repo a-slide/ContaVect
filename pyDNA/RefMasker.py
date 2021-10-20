@@ -47,7 +47,7 @@ def mask (  subject_fasta,
     except AttributeError as E:
         print ("The list provided does not contain suitable hit object, The subject fasta file will not be edited")
         return subject_fasta
-
+    
     # Initialize output folder
     mkdir(ref_outdir)
 
@@ -67,7 +67,7 @@ def mask (  subject_fasta,
 
     # Generate a list of ref that will need to be modified
     id_list = list({hit.s_id:0 for hit in hit_list}.keys())
-    id_list = [contig.decode('ascii') for contig in id_list]
+    id_list_decode = [contig.decode() for contig in id_list]
 
     # Iterate over record in the subject fasta file
     print(("Masking hit positions and writting a new reference for {} ".format(ref_outname)))
@@ -79,7 +79,7 @@ def mask (  subject_fasta,
         stdout.flush()
 
         # Check if the record is in the list of record to modify
-        if record.id in id_list:
+        if record.id in id_list_decode:
             i+=1
             # print("Hit found in {}. Editing the sequence".format(record.id))
             # Casting Seq type to MutableSeq Type to allow string editing
@@ -87,8 +87,13 @@ def mask (  subject_fasta,
 
             # For each hit in the list of hit found
             for hit in hit_list:
+                # print("Record id: {}".format(record.id))
+                # print("Hit id: {}".format(hit.s_id))
+                try:
+                    hit.s_id = hit.s_id.decode()
+                except:
+                    pass
                 if record.id == hit.s_id:
-
                     # For all position between start and end coordinates modify the base by N
                     for position in range (hit.s_start, hit.s_end):
                         record.seq[position]= 'n'
