@@ -25,7 +25,7 @@ For more information, a comprehensive developer documentation can be generated f
 
 First of all, clone the repository:
 ``` bash
-$ git clone --recursive https://github.com/emlec/ContaVect/
+$ git clone https://github.com/emlec/ContaVect/
 ```
 
 You can then use Singularity or Conda to proceed.
@@ -40,11 +40,11 @@ sudo singularity build ContaVect singularity/Singularity.rcp
 ```
 To check dependencies versions in the container, use:
 ```bash
-singularity run --app versions Contavect
+singularity run --app versions ContaVect
 ```
 To start a shell in the container, and use ContaVect, use:
 ```bash
-singularity shell Contavect
+singularity shell ContaVect
 ```
 
 ### Using Conda
